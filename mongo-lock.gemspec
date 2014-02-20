@@ -1,6 +1,11 @@
+# coding: utf-8
+lib = File.expand_path('../lib', __FILE__)
+$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+require 'mongo-lock/version'
+
 Gem::Specification.new do |spec|
   spec.name        = "mongo-lock"
-  spec.version  = Trakio::VERSION
+  spec.version     = Mongo::Lock::VERSION
   spec.authors     = ["Matthew Spence"]
   spec.email       = "msaspence@gmail.com"
   spec.homepage    = "https://github.com/trakio/mongo-lock"
@@ -16,5 +21,8 @@ Gem::Specification.new do |spec|
 
   # s.add_dependency 'some-gem'
   spec.extra_rdoc_files = ['README.md', 'LICENSE']
+
+  spec.add_development_dependency 'rspec'
+  spec.add_development_dependency 'fuubar'
 
 end
