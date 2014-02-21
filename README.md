@@ -50,12 +50,9 @@ We also looked at [mongo-locking gem](https://github.com/servio/mongo-locking) b
 
 ## Background
 
-A lock has an expected lifetime.
-If the owner of a lock disappears (due to machine failure, network failure, process death),
-you want the lock to expire and another owner to be able to acquire the lock.
-At the same time, the owner of a lock should be able to extend its lifetime.
-Thus, you can acquire a lock with a conservative estimate on lifetime, and extend it as necessary,
-rather than acquiring the lock with a very long lifetime which will result in long waits in the event of failures.
+A lock has an expected lifetime. If the owner of a lock disappears (due to machine failure, network failure, process death), you want the lock to expire and another owner to be able to acquire the lock. At the same time, the owner of a lock should be able to extend its lifetime. Thus, you can acquire a lock with a conservative estimate on lifetime, and extend it as necessary, rather than acquiring the lock with a very long lifetime which will result in long waits in the event of failures.
+
+A lock has an owner. Mongo::Lock defaults to using an owner id of HOSTNAME:PID:TID.
 
 ## Configuration
 
@@ -78,8 +75,8 @@ You can add multiple collections with a hash that can be referenced later using 
 
 ```ruby
 Mongo::Lock.configure collections: { default: Mongoid.database.collection("locks"), other: Mongoid.database.collection("other_locks") }
-Mongo::Lock.lock('my_lock') # Locks in the locks collection
-Mongo::Lock.lock('my_lock', collection: :other) # Locks in the other_locks collection
+Mongo::Lock.acquire('my_lock') # Locks in the locks collection
+Mongo::Lock.acquire('my_lock', collection: :other) # Locks in the other_locks collection
 ```
 
 You can also configure using a block:
@@ -93,6 +90,7 @@ Mongo::Lock.configure do |config|
 end
 ```
 
+### Acquisition Timeout
 
 A lock may need more than one attempt to acquire it. Mongo::Lock offers:
 
@@ -116,34 +114,77 @@ Mongo::Lock.configure do |config|
 end
 ```
 
+### Raising Errors
+
+If a lock cannot be acquired, released or extended it will return false, you can set the raise option to true to raise a Mongo::Lock::LockNotAcquiredError or Mongo::Lock::LockNotReleasedError.
+
+```ruby
+Mongo::Lock.configure do |config|
+  config.raise = true # Whether to raise an error when acquire, release or extend fail.
+end
+```
+
+### Owner
+
+But default the owner id will be generated using the following Proc:
+
+```ruby
+ Proc.new {
+  owner = `hostname`.strip
+  owner << ":#{Process.pid}"
+  owner << ":#{Thread.current.object_id}"
+  owner
+}
+```
+
+You can override this with either a Proc that returns any object that responds to to_s, or with any object that responds to to_s.
+
+```ruby
+Mongo::Lock.configure do |config|
+  config.owner = ['my', 'owner', 'id']
+end
+# Or
+Mongo::Lock.configure do |config|
+  config.owner = Proc.new { [`hostname`.strip, Process.pid] }
+end
+```
+
+Note: Hosts, threads or processes using the same owner can acquire each others locks.
+
 ## Usage
 
-You can Mongo::Lock's class methods:
+You can use Mongo::Lock's class methods:
 
-    Mongo::Lock.lock('my_key', options) do |lock|
-      # Do Something here that needs my_key locked
-    end
-    lock = Mongo::Lock.lock('my_key', options)
-    # Do Something here that needs my_key locked
-    lock.unlock
-    # or
-    Mongo::Lock.unlock('my_key')
+```ruby
+Mongo::Lock.acquire('my_key', options) do |lock|
+  # Do Something here that needs my_key locked
+end
+
+lock = Mongo::Lock.acquire('my_key', options)
+# Do Something here that needs my_key locked
+lock.release
+# or
+Mongo::Lock.release('my_key')
+```
 
 Or you can initialise your own instance.
 
-    Mongo::Lock.new('my_key', options).lock do |lock|
-      # Do Something here that needs my_key locked
-    end
-    lock = Mongo::Lock.new('my_key', options)
-    lock.
-    # Do Something here that needs my_key locked
-    lock.unlock
-    # or
-    Mongo::Lock.new('my_key').unlock
+```ruby
+Mongo::Lock.new('my_key', options).acquire do |lock|
+  # Do Something here that needs my_key locked
+end
+
+lock = Mongo::Lock.acquire('my_key', options)
+# Do Something here that needs my_key locked
+lock.release
+# or
+Mongo::Lock.release('my_key')
+```
 
 ### Options
 
-When using Mongo::Lock#lock, Mongo::Lock#unlock or Mongo::Lock#new after the key you may overide any of the following options:
+When using Mongo::Lock#acquire, Mongo::Lock#release or Mongo::Lock#new after the key you may overide any of the following options:
+
 ```ruby
 Mongo::Lock.new 'my_key', {
   collection: Mongoid.database.collection("locks"), # May also be a symbol if that symbol was provided in the collections hash to Mongo::Lock.configure
@@ -164,10 +205,18 @@ Mongo::Lock.new 'my_key' do |lock|
 end
 ```
 
+You can also call Mongo::Lock#extend and it will extend by the expires_after option.
+
+```ruby
+Mongo::Lock.new 'my_key' do |lock|
+  lock.extend
+end
+```
+
 ### Check you still hold a lock
 
 ```ruby
-Mongo::Lock.new 'my_key', expires_after: 10 do |lock|
+Mongo::Lock.acquire 'my_key', expires_after: 10 do |lock|
   sleep 9
   lock.expired? # False
   sleep 11
@@ -175,22 +224,55 @@ Mongo::Lock.new 'my_key', expires_after: 10 do |lock|
 end
 ```
 
-### Check a key is locked without acquiring it
+### Check a key is already locked without acquiring it
 
 ```ruby
-Mongo::Lock.locked? 'my_key'
+Mongo::Lock.available? 'my_key'
 # Or
-Mongo::Lock.new('my_key').locked?
+lock = Mongo::Lock.new('my_key')
+lock.available?
 ```
 
-### Acquisition Failures
+### Failures
 
-If Mongo::Lock cannot acquire a lock within its configuration limits it will raise a Mongo::Lock::LockNotAcquired
+If Mongo::Lock#acquire cannot acquire a lock within its configuration limits it will return false.
+
+```ruby
+unless Mongo::Lock.acquire 'my_key'
+  # Maybe try again tomorrow
+end
+```
+
+If Mongo::Lock#release cannot release a lock because it wasn't acquired it will return false. If it has already been released, or has expired it will do nothing and return true.
+
+```ruby
+unless Mongo::Lock.release 'my_key'
+  # Eh somebody else should release it eventually
+end
+```
+
+If Mongo::Lock#extend cannot be extended because it has already been released or it is owned by someone else it will return false.
+
+```ruby
+unless lock.extend_by 10
+  # Eh somebody else should release it eventually
+end
+```
+
+If the raise error option is set to true or you append ! to the end of the method name and you call any of the acquire, lock, release, unlock or extend methods they will raise a Mongo::Lock::NotAcquiredError, Mongo::Lock::NotReleasedError or Mongo::Lock::NotExtendedError instead of returning false.
 
 ```ruby
 begin
-  Mongo::Lock.lock 'my_key'
-rescue Mongo::Lock::LockNotAcquired => e
+  Mongo::Lock.acquire! 'my_key'
+rescue Mongo::Lock::LockNotAcquiredError => e
+  # Maybe try again tomorrow
+end
+
+# Or
+
+begin
+  Mongo::Lock.acquire 'my_key', raise: true
+rescue Mongo::Lock::LockNotAcquiredError => e
   # Maybe try again tomorrow
 end
 ```
@@ -198,12 +280,11 @@ end
 ### Aliases
 
 ```ruby
-Mongo::Lock.acquire # Mongo::Lock.lock
-Mongo::Lock#acquire # Mongo::Lock.lock
-Mongo::Lock.release # Mongo::Lock.unlock
-Mongo::Lock#release # Mongo::Lock.unlock
-Mongo::Lock.acquired? # Mongo::Lock.locked?
-Mongo::Lock#acquired? # Mongo::Lock.locked?
+Mongo::Lock.lock # Mongo::Lock.acquire
+Mongo::Lock#lock # Mongo::Lock#acquire
+Mongo::Lock.unlock # Mongo::Lock.release
+Mongo::Lock#unlock # Mongo::Lock#release
+Mongo::Lock#extend # Mongo::Lock#extend_by config.expires_after
 ```
 
 ## Contributors
