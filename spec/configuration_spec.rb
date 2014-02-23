@@ -173,7 +173,8 @@ describe Mongo::Lock::Configuration do
   describe "#frequency=" do
 
     it "should set the frequency value" do
-
+      subject.frequency = 9
+      expect(subject.instance_variable_get('@frequency')).to be 9
     end
 
   end
@@ -181,7 +182,8 @@ describe Mongo::Lock::Configuration do
   describe "#frequency" do
 
     it "should return the frequency value" do
-
+      subject.instance_variable_set('@frequency', 1)
+      expect(subject.frequency).to be 1
     end
 
   end
@@ -189,7 +191,8 @@ describe Mongo::Lock::Configuration do
   describe "#expires_after=" do
 
     it "should set the expires_after value" do
-
+      subject.expires_after = 9
+      expect(subject.instance_variable_get('@expires_after')).to be 9
     end
 
   end
@@ -197,7 +200,8 @@ describe Mongo::Lock::Configuration do
   describe "#expires_after" do
 
     it "should return the expires_after value" do
-
+      subject.instance_variable_set('@expires_after', 1)
+      expect(subject.expires_after).to be 1
     end
 
   end
@@ -205,7 +209,8 @@ describe Mongo::Lock::Configuration do
   describe "#owner" do
 
     it "should return the owner value" do
-
+      subject.instance_variable_set('@owner', 'spence')
+      expect(subject.owner).to eql 'spence'
     end
 
   end
@@ -213,7 +218,8 @@ describe Mongo::Lock::Configuration do
   describe "#owner=" do
 
     it "should set the owner value" do
-
+      subject.owner = 'spence'
+      expect(subject.instance_variable_get('@owner')).to eql 'spence'
     end
 
   end

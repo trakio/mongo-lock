@@ -3,7 +3,7 @@ Mongo::Lock
 
 Key based pessimistic locking for Ruby and MongoDB. Is this key avaliable? Yes - Lock it for me for a sec will you. No - OK I'll just wait here until its ready.
 
-It correctly handles timeouts and vanishing lock owners (such as machine failures)
+It correctly handles timeout_ins and vanishing lock owners (such as machine failures)
 
 ## Installation
 
@@ -90,13 +90,13 @@ Mongo::Lock.configure do |config|
 end
 ```
 
-### Acquisition Timeout
+### Acquisition timeout_in
 
 A lock may need more than one attempt to acquire it. Mongo::Lock offers:
 
 ```ruby
 Mongo::Lock.configure do |config|
-  config.timeout_in = false # Timeout in seconds on acquisition; this defaults to false ie no time limit.
+  config.timeout_in = false # timeout_in in seconds on acquisition; this defaults to false ie no time limit.
   config.limit = 100 # The limit on the number of acquisition attempts; this defaults to 100.
   config.frequency = 1 # Frequency in seconds for acquisition attempts ; this defaults to 1.
   # acquisition_attempt_frequency can also be given as a proc which will be passed the attempt number
@@ -110,7 +110,7 @@ A lock will automatically be relinquished once its expiry has passed. Expired lo
 
 ```ruby
 Mongo::Lock.configure do |config|
-  config.expires_after = false # Timeout in seconds for lock expiry; this defaults to 10.
+  config.expires_after = false # timeout_in in seconds for lock expiry; this defaults to 10.
 end
 ```
 
@@ -188,10 +188,10 @@ When using Mongo::Lock#acquire, Mongo::Lock#release or Mongo::Lock#new after the
 ```ruby
 Mongo::Lock.new 'my_key', {
   collection: Mongoid.database.collection("locks"), # May also be a symbol if that symbol was provided in the collections hash to Mongo::Lock.configure
-  timeout_in: 10, # Timeout in seconds on acquisition; this defaults to false ie no time limit.
+  timeout_in: 10, # timeout_in in seconds on acquisition; this defaults to false ie no time limit.
   limit: 10, # The limit on the number of acquisition attempts; this defaults to 100.
   frequency: 2, # Frequency in seconds for acquisition attempts ; this defaults to 1.
-  expires_after: 10,# Timeout in seconds for lock expiry; this defaults to 10.
+  expires_after: 10,# timeout_in in seconds for lock expiry; this defaults to 10.
 }
 ```
 

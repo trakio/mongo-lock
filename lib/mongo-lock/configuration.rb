@@ -5,6 +5,10 @@ module Mongo
       attr_accessor :connections
       attr_accessor :limit
       attr_accessor :timeout_in
+      attr_accessor :frequency
+      attr_accessor :expires_after
+      attr_accessor :owner
+      attr_accessor :raise
 
       def initialize defaults, options, &block
         options = defaults.merge(options)
@@ -41,6 +45,17 @@ module Mongo
 
       def collections
         @collections ||= {}
+      end
+
+      def to_hash
+        {
+          timeout_in: timeout_in,
+          limit: limit,
+          frequency: frequency,
+          expires_after: expires_after,
+          owner: owner,
+          raise: raise
+        }
       end
 
     end

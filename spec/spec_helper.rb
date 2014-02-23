@@ -1,5 +1,6 @@
 require 'mongo-lock'
 require 'mongo'
+require 'active_support/core_ext/numeric/time'
 
 RSpec.configure do |config|
 
