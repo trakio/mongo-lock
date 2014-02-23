@@ -4,10 +4,23 @@ describe Mongo::Lock do
 
   describe '#expired?' do
 
+    let(:lock) { Mongo::Lock.new 'my_lock', owner: 'spence', timeout_in: 0.01, frequency: 0.01 }
+
+    context "when the lock has not been acquired" do
+
+      it "raises Mongo::Lock::NotAcquiredError" do
+        sleep 0.02
+        expect{lock.expired?}.to raise_error Mongo::Lock::NotAcquiredError
+      end
+
+    end
+
     context "when the lock has expired" do
 
       it "returns true" do
-
+        lock.acquire expires_after: 0.01
+        sleep 0.02
+        expect(lock.expired?).to be_true
       end
 
     end
@@ -15,7 +28,9 @@ describe Mongo::Lock do
     context "when the lock hasn't expired" do
 
       it "returns false" do
-
+        lock.acquire expires_after: 0.02
+        sleep 0.01
+        expect(lock.expired?).to be_false
       end
 
     end

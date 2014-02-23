@@ -72,6 +72,17 @@ module Mongo
       init_and_send key, options, :available?
     end
 
+    def self.ensure_indexes
+      configuration.collections.each_pair do |key, collection|
+        collection.create_index([
+          ['key', Mongo::ASCENDING],
+          ['owner', Mongo::ASCENDING],
+          ['expires_at', Mongo::ASCENDING]
+        ])
+        collection.create_index([['ttl', Mongo::ASCENDING]],{ expireAfterSeconds: 0 })
+      end
+    end
+
     def initialize key, options = {}
       self.configuration = Configuration.new self.class.configuration.to_hash, options
       self.key = key
@@ -209,6 +220,7 @@ module Mongo
     end
 
     def expired?
+      raise Mongo::Lock::NotAcquiredError if !acquired
       !!(expires_at && expires_at < Time.now)
     end
 
