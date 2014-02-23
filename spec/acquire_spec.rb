@@ -9,9 +9,8 @@ describe Mongo::Lock do
     end
 
     it "calls #acquire to acquire the lock" do
-      lock = Mongo::Lock.new('my_lock')
       expect_any_instance_of(Mongo::Lock).to receive(:acquire)
-      lock.acquire
+      Mongo::Lock.acquire 'my_lock'
     end
 
     context "when options are provided" do

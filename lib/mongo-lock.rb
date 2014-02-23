@@ -63,6 +63,10 @@ module Mongo
       init_and_send key, options, :release!
     end
 
+    def self.available? key, options = {}
+      init_and_send key, options, :available?
+    end
+
     def initialize key, options = {}
       self.configuration = Configuration.new self.class.configuration.to_hash, options
       self.key = key

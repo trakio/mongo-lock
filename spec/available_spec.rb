@@ -2,6 +2,28 @@ require 'spec_helper'
 
 describe Mongo::Lock do
 
+  describe '.available?' do
+
+    it "creates and returns a new Mongo::Lock instance" do
+      expect(Mongo::Lock.available? 'my_lock').to be_a Mongo::Lock
+    end
+
+    it "calls #available?" do
+      expect_any_instance_of(Mongo::Lock).to receive(:available?)
+      Mongo::Lock.available? 'my_lock'
+    end
+
+    context "when options are provided" do
+
+      it "passes them to the new lock" do
+        lock = Mongo::Lock.available?('my_lock', { owner: 'spence' })
+        expect(lock.configuration.owner).to eql 'spence'
+      end
+
+    end
+
+  end
+
   describe '#available?' do
 
     let(:lock) { Mongo::Lock.new 'my_lock', owner: 'spence', timeout_in: 0.01, frequency: 0.01 }
