@@ -157,10 +157,7 @@ module Mongo
     def find_or_insert options
       to_expire_at = Time.now + options[:expires_after]
       existing_lock = collection.find_and_modify({
-        query: {
-          key: key,
-          expires_at: { '$gt' => Time.now }
-        },
+        query: query,
         update: {
           '$setOnInsert' => {
             key: key,
@@ -178,6 +175,19 @@ module Mongo
       end
 
       existing_lock
+    end
+
+    def available? options = {}
+      options = configuration.to_hash.merge options
+      existing_lock = collection.find(query).first
+      !existing_lock || existing_lock['owner'] == options[:owner]
+    end
+
+    def query
+      {
+        key: key,
+        expires_at: { '$gt' => Time.now }
+      }
     end
 
     def acquired?
