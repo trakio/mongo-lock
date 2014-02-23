@@ -65,7 +65,7 @@ describe Mongo::Lock do
 
       it "retries until it can acquire it" do
         collection.insert key: 'my_lock', owner: 'tobie', expires_at: 0.1.seconds.from_now
-        lock.acquire frequency: 0.01
+        lock.acquire frequency: 0.01, timeout_in: 0.2, limit: 20
         expect(collection.find(key: 'my_lock', owner: 'spence').count).to be 1
       end
 
