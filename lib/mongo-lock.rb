@@ -19,11 +19,16 @@ module Mongo
         frequency: 1,
         expires_after: 10,
       }
+      defaults = defaults.merge(@@default_configuration) if defined? @@default_configuration
       @@default_configuration = Configuration.new(defaults, options, &block)
     end
 
     def self.configuration
-      @@default_configuration
+      if defined? @@default_configuration
+        @@default_configuration
+      else
+        @@default_configuration = configure
+      end
     end
 
     def self.release_all options = {}
@@ -70,6 +75,11 @@ module Mongo
     def initialize key, options = {}
       self.configuration = Configuration.new self.class.configuration.to_hash, options
       self.key = key
+    end
+
+    def configure options = {}, &block
+      self.configuration = Configuration.new self.configuration.to_hash, options
+      yield self.configuration if block_given?
     end
 
     def acquire options = {}

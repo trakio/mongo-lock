@@ -19,6 +19,7 @@ module Mongo
         options.each_pair do |key,value|
           self.send(:"#{key}=",value)
         end
+        yield self if block_given?
       end
 
       def collection= collection
