@@ -9,7 +9,9 @@ describe Mongo::Lock do
     end
 
     it "calls #acquire to acquire the lock" do
-      expect(Mongo::Lock.acquire 'my_lock').to be_a Mongo::Lock
+      lock = Mongo::Lock.new('my_lock')
+      expect_any_instance_of(Mongo::Lock).to receive(:acquire)
+      lock.acquire
     end
 
     context "when options are provided" do
@@ -162,7 +164,7 @@ describe Mongo::Lock do
     let(:lock) { Mongo::Lock.new 'my_lock', owner: 'spence' }
 
     it "calls .acquire with raise errors option set to true" do
-      expect(Mongo::Lock).to receive(:acquire).with('my_lock', { limit: 3 }, :acquire!)
+      expect(Mongo::Lock).to receive(:init_and_send).with('my_lock', { limit: 3 }, :acquire!)
       Mongo::Lock.acquire! 'my_lock', limit: 3
     end
 

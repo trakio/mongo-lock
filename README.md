@@ -259,7 +259,7 @@ unless lock.extend_by 10
 end
 ```
 
-If the raise error option is set to true or you append ! to the end of the method name and you call any of the acquire, lock, release, unlock or extend methods they will raise a Mongo::Lock::NotAcquiredError, Mongo::Lock::NotReleasedError or Mongo::Lock::NotExtendedError instead of returning false.
+If the raise error option is set to true or you append ! to the end of the method name and you call any of the acquire, lock, release or extend methods they will raise a Mongo::Lock::NotAcquiredError, Mongo::Lock::NotReleasedError or Mongo::Lock::NotExtendedError instead of returning false.
 
 ```ruby
 begin
@@ -282,8 +282,6 @@ end
 ```ruby
 Mongo::Lock.lock # Mongo::Lock.acquire
 Mongo::Lock#lock # Mongo::Lock#acquire
-Mongo::Lock.unlock # Mongo::Lock.release
-Mongo::Lock#unlock # Mongo::Lock#release
 Mongo::Lock#extend # Mongo::Lock#extend_by config.expires_after
 ```
 

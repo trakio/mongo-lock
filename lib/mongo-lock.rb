@@ -4,10 +4,13 @@ module Mongo
   class Lock
 
     class NotAcquiredError < StandardError ; end
+    class NotReleasedError < StandardError ; end
 
     attr_accessor :configuration
     attr_accessor :key
     attr_accessor :acquired
+    attr_accessor :expires_at
+    attr_accessor :released
 
     def self.configure options = {}, &block
       defaults = {
@@ -38,18 +41,30 @@ module Mongo
       collection.remove(selector)
     end
 
-    def self.acquire key, options = {}, method = :acquire
+    def self.init_and_send key, options = {}, method
       lock = self.new(key, options)
       lock.send(method)
       lock
+    end
+
+    def self.acquire key, options = {}
+      init_and_send key, options, :acquire
+    end
+
+    def self.release key, options = {}
+      init_and_send key, options, :release
     end
 
     def self.lock *args
       acquire *args
     end
 
-    def self.acquire! key, options
-      acquire key, options, :acquire!
+    def self.acquire! key, options = {}
+      init_and_send key, options, :acquire!
+    end
+
+    def self.release! key, options = {}
+      init_and_send key, options, :release!
     end
 
     def self.lock! *args
@@ -67,7 +82,6 @@ module Mongo
       time_spent = 0
 
       loop do
-
         # If timeout has expired
         if options[:timeout_in] && options[:timeout_in] < time_spent
           return raise_or_false options
@@ -88,10 +102,10 @@ module Mongo
 
         # If the lock was acquired
         else
+          self.acquired = true
           return true
 
         end
-
 
         if options[:frequency].is_a? Proc
           frequency = options[:frequency].call(i)
@@ -108,7 +122,7 @@ module Mongo
       acquire *args
     end
 
-    def acquire! options
+    def acquire! options = {}
       options[:raise] = true
       acquire options
     end
@@ -117,13 +131,48 @@ module Mongo
       acquire! *args
     end
 
-    def raise_or_false options
-      raise NotAcquiredError if options[:raise]
+    def release options = {}
+      options = configuration.to_hash.merge options
+
+      # If the lock has already been released
+      if released?
+        return true
+
+      # If the lock has expired its as good as released
+      elsif expired?
+        self.released = true
+        self.acquired = false
+        return true
+
+      # We must have acquired the lock to release it
+      elsif !acquired?
+        if acquire options.merge(raise: false)
+          return release options
+        else
+          return raise_or_false options, NotReleasedError
+        end
+
+      else
+        self.released = true
+        self.acquired = false
+        collection.remove key: key, owner: options[:owner]
+        return true
+      end
+    end
+
+    def release! options = {}
+      options[:raise] = true
+      release options
+    end
+
+    def raise_or_false options, error = NotAcquiredError
+      raise error if options[:raise]
       false
     end
 
     def find_or_insert options
-      collection.find_and_modify({
+      to_expire_at = Time.now + options[:expires_after]
+      existing_lock = collection.find_and_modify({
         query: {
           key: key,
           expires_at: { '$gt' => Time.now }
@@ -132,11 +181,31 @@ module Mongo
           '$setOnInsert' => {
             key: key,
             owner: options[:owner],
-            expires_at: Time.now + options[:expires_after]
+            expires_at: to_expire_at
           }
         },
         upsert: true
       })
+
+      if existing_lock
+        self.expires_at = existing_lock['expires_at']
+      else
+        self.expires_at = to_expire_at
+      end
+
+      existing_lock
+    end
+
+    def acquired?
+      !!acquired && !expired?
+    end
+
+    def expired?
+      !!(expires_at && expires_at < Time.now)
+    end
+
+    def released?
+      !!released
     end
 
     def extend_by time
