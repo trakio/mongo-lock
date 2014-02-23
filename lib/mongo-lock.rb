@@ -55,20 +55,12 @@ module Mongo
       init_and_send key, options, :release
     end
 
-    def self.lock *args
-      acquire *args
-    end
-
     def self.acquire! key, options = {}
       init_and_send key, options, :acquire!
     end
 
     def self.release! key, options = {}
       init_and_send key, options, :release!
-    end
-
-    def self.lock! *args
-      acquire! *args
     end
 
     def initialize key, options = {}
@@ -118,17 +110,9 @@ module Mongo
       end
     end
 
-    def lock *args
-      acquire *args
-    end
-
     def acquire! options = {}
       options[:raise] = true
       acquire options
-    end
-
-    def lock! *args
-      acquire! *args
     end
 
     def release options = {}

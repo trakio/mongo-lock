@@ -181,42 +181,4 @@ describe Mongo::Lock do
 
   end
 
-  describe '.lock' do
-
-    it "calls .acquire" do
-      expect(Mongo::Lock).to receive(:acquire).with limit: 2
-      Mongo::Lock.lock limit: 2
-    end
-
-  end
-
-  describe '#lock' do
-
-    it "calls #acquire" do
-      lock = Mongo::Lock.new 'my_lock'
-      expect(lock).to receive(:acquire).with(limit: 4)
-      lock.lock limit: 4
-    end
-
-  end
-
-  describe '.lock!' do
-
-    it "calls .acquire!" do
-      expect(Mongo::Lock).to receive(:acquire!).with(limit: 5)
-      Mongo::Lock.lock! limit: 5
-    end
-
-  end
-
-  describe '#lock!' do
-
-    it "calls #acquire!" do
-      lock = Mongo::Lock.new 'my_lock'
-      expect(lock).to receive :acquire!
-      lock.lock!
-    end
-
-  end
-
 end
