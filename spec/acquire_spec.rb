@@ -124,7 +124,7 @@ describe Mongo::Lock do
 
       context "and acquisition timeout_in occurs" do
 
-        let(:lock) { Mongo::Lock.new 'my_lock', owner: 'tobie', timeout_in: 0.4, frequency: 0.01, raise: true }
+        let(:lock) { Mongo::Lock.new 'my_lock', owner: 'tobie', timeout_in: 0.4, limit: 3, frequency: 0.01, raise: true }
 
         it "should raise Mongo::Lock::NotAcquiredError" do
           collection.insert key: 'my_lock', owner: 'spence', expires_at: 0.2.seconds.from_now
