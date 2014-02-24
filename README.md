@@ -4,6 +4,7 @@ Mongo::Lock
 [![Gem Version](https://badge.fury.io/rb/mongo-lock.png)](http://badge.fury.io/rb/mongo-lock)
 [![Dependency Status](https://gemnasium.com/trakio/mongo-lock.png)](https://gemnasium.com/trakio/mongo-lock)
 [![Code Climate](https://codeclimate.com/github/trakio/mongo-lock.png)](https://codeclimate.com/github/trakio/mongo-lock)
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/trakio/mongo-lock/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 
 Key based pessimistic locking for Ruby and MongoDB. Is this key avaliable? Yes - Lock it for me for a sec will you. No - OK I'll just wait here until its ready.
 
