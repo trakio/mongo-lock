@@ -151,7 +151,7 @@ describe Mongo::Lock do
       let(:lock) { Mongo::Lock.new 'my_lock', owner: 'tobie', timeout_in: 0.2, limit: 11, frequency: 0.01, raise: true }
 
       it "overrides the lock's" do
-        collection.insert key: 'my_lock', owner: 'spence', expires_at: 0.1.seconds.from_now
+        collection.insert key: 'my_lock', owner: 'spence', expires_at: 1.seconds.from_now
         expect(lock.acquire timeout_in: 0.05, limit: 3, frequency: 0.02, raise: false).to be_false
       end
 
