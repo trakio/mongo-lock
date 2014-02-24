@@ -85,6 +85,12 @@ module Mongo
       end
     end
 
+    def self.clear_expired
+      configuration.collections.each_pair do |key,collection|
+        collection.remove expires_at: { '$lt' => Time.now }
+      end
+    end
+
     def initialize key, options = {}
       self.configuration = Configuration.new self.class.configuration.to_hash, options
       self.key = key
