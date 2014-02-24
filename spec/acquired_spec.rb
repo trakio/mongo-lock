@@ -30,7 +30,7 @@ describe Mongo::Lock do
       it "returns false" do
         collection.insert key: 'my_lock', owner: 'spence', expires_at: 0.01.seconds.from_now
         lock.acquire
-        sleep 0.02
+        sleep 0.1
         expect(lock.acquired?).to be_false
       end
 

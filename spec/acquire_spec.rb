@@ -52,7 +52,7 @@ describe Mongo::Lock do
       let(:lock) { Mongo::Lock.new 'my_lock' }
 
       it "should call the Proc with the attempt number" do
-        collection.insert key: 'my_lock', owner: 'tobie', expires_at: 0.04.seconds.from_now
+        collection.insert key: 'my_lock', owner: 'tobie', expires_at: 10.seconds.from_now
         proc = Proc.new{ |x| x }
         expect(proc).to receive(:call).with(1).and_return(0.01)
         expect(proc).to receive(:call).with(2).and_return(0.01)
