@@ -3,7 +3,7 @@ Mongo::Lock
 
 Key based pessimistic locking for Ruby and MongoDB. Is this key avaliable? Yes - Lock it for me for a sec will you. No - OK I'll just wait here until its ready.
 
-It correctly handles timeout_ins and vanishing lock owners (such as machine failures)
+It handles timeouts and and vanishing lock owners (such as machine failures)
 
 ## Installation
 
@@ -28,19 +28,10 @@ $ gem install mongo-lock
 Build you indexes on any collection that is going to hold locks:
 
 ```ruby
-Mongo::Lock.ensure_indexes # Will use the collection provided to configure
-Mongo::Lock.ensure_indexes collection: collection # Provide a collection manually
-Mongo::Lock.ensure_indexes collections: [collection1, collection2] # Provide an array of collections
+Mongo::Lock.ensure_indexes # Will use the collection provided to #configure
 ```
 
-If you are using rake you can run:
-
-```
-$ bundle exec rake mongo_lock:ensure_indexes
-```
-
-For this to work you must have configured your collection or collections in an intializer.
-
+For this to work you must have configured your collection or collections in when intializing locks, in #configure or .configure.
 
 ## Shout outs
 
@@ -75,7 +66,7 @@ You can add multiple collections with a hash that can be referenced later using 
 
 ```ruby
 Mongo::Lock.configure collections: { default: Mongoid.database.collection("locks"), other: Mongoid.database.collection("other_locks") }
-Mongo::Lock.acquire('my_lock') # Locks in the locks collection
+Mongo::Lock.acquire('my_lock') # Locks in the default collection
 Mongo::Lock.acquire('my_lock', collection: :other) # Locks in the other_locks collection
 ```
 
@@ -106,13 +97,20 @@ end
 
 ### Lock Expiry
 
-A lock will automatically be relinquished once its expiry has passed. Expired locks are cleaned up by [MongoDB's TTL index](http://docs.mongodb.org/manual/tutorial/expire-data/), which may take up to 60 or more depending on load to actually remove expired locks. Expired locks that have not been cleaned out can still be acquire. **You must have built your indexes to ensure expired locks are cleaned out.**
+A lock will automatically be relinquished once its expiry has passed. Expired locks are cleaned up by [MongoDB's TTL index](http://docs.mongodb.org/manual/tutorial/expire-data/), which may take up to 60 seconds or more depending on load to actually remove expired locks. Expired locks that have not been cleaned out can still be acquire. **You must have built your indexes to ensure expired locks are cleaned out.**
 
 ```ruby
 Mongo::Lock.configure do |config|
   config.expires_after = false # timeout_in in seconds for lock expiry; this defaults to 10.
 end
 ```
+
+You can remove expired locks yourself with:
+
+```ruby
+Mongo::Lock.clean_expired
+```
+
 
 ### Raising Errors
 
@@ -124,20 +122,17 @@ Mongo::Lock.configure do |config|
 end
 ```
 
+Using .acquire!, #acquire!, .release!, #release!, #extend_by! and #extend! will also raise exceptions instead of returning false.
+
 ### Owner
 
-But default the owner id will be generated using the following Proc:
+By default the owner id will be generated using the following Proc:
 
 ```ruby
- Proc.new {
-  owner = `hostname`.strip
-  owner << ":#{Process.pid}"
-  owner << ":#{Thread.current.object_id}"
-  owner
-}
+Proc.new { "#{`hostname`.strip}:#{Process.pid}:#{Thread.object_id}" }
 ```
 
-You can override this with either a Proc that returns any object that responds to to_s, or with any object that responds to to_s.
+You can override this with either a Proc that returns any object that responds to to_s, or with any object that responds to #to_s.
 
 ```ruby
 Mongo::Lock.configure do |config|
@@ -160,7 +155,7 @@ Mongo::Lock.acquire('my_key', options) do |lock|
   # Do Something here that needs my_key locked
 end
 
-lock = Mongo::Lock.acquire('my_key', options)
+lock = Mongo::Lock.new('my_key', options).acquire
 # Do Something here that needs my_key locked
 lock.release
 # or
@@ -187,7 +182,7 @@ When using Mongo::Lock#acquire, Mongo::Lock#release or Mongo::Lock#new after the
 
 ```ruby
 Mongo::Lock.new 'my_key', {
-  collection: Mongoid.database.collection("locks"), # May also be a symbol if that symbol was provided in the collections hash to Mongo::Lock.configure
+  collection: Mongo::Connection.new("localhost").db("somedb").collection("locks"), # May also be a symbol if that symbol was provided in the collections hash to Mongo::Lock.configure
   timeout_in: 10, # timeout_in in seconds on acquisition; this defaults to false ie no time limit.
   limit: 10, # The limit on the number of acquisition attempts; this defaults to 100.
   frequency: 2, # Frequency in seconds for acquisition attempts ; this defaults to 1.
@@ -197,7 +192,7 @@ Mongo::Lock.new 'my_key', {
 
 ### Extending lock
 
-You can extend a lock by calling Mongo::Lock#extend_by with the number of seconds to extend the lock. This is from now, not from when the lock would have expired by.
+You can extend a lock by calling Mongo::Lock#extend_by with the number of seconds to extend the lock.
 
 ```ruby
 Mongo::Lock.new 'my_key' do |lock|
@@ -205,7 +200,7 @@ Mongo::Lock.new 'my_key' do |lock|
 end
 ```
 
-You can also call Mongo::Lock#extend and it will extend by the expires_after option.
+You can also call Mongo::Lock#extend and it will extend by the lock's expires_after option.
 
 ```ruby
 Mongo::Lock.new 'my_key' do |lock|
@@ -251,7 +246,7 @@ unless Mongo::Lock.release 'my_key'
 end
 ```
 
-If Mongo::Lock#extend cannot be extended because it has already been released or it is owned by someone else it will return false.
+If Mongo::Lock#extend cannot be extended because it has already been released, it is owned by someone else or it was never acquired it will return false.
 
 ```ruby
 unless lock.extend_by 10
@@ -259,7 +254,7 @@ unless lock.extend_by 10
 end
 ```
 
-If the raise error option is set to true or you append ! to the end of the method name and you call any of the acquire, release or extend methods they will raise a Mongo::Lock::NotAcquiredError, Mongo::Lock::NotReleasedError or Mongo::Lock::NotExtendedError instead of returning false.
+If the raise error option is set to true or you append ! to the end of the method name and you call any of the acquire, release, extend_by or extend methods they will raise a Mongo::Lock::NotAcquiredError, Mongo::Lock::NotReleasedError or Mongo::Lock::NotExtendedError instead of returning false.
 
 ```ruby
 begin

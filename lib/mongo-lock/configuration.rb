@@ -61,9 +61,9 @@ module Mongo
 
       def owner
         if @owner.is_a? Proc
-          @owner.call
+          @owner.call.to_s
         else
-          @owner
+          @owner.to_s
         end
       end
 

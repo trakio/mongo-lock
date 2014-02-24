@@ -16,11 +16,11 @@ module Mongo
     def self.configure options = {}, &block
       defaults = {
         timeout_in: 10,
-        limit: 10,
+        limit: 100,
         frequency: 1,
         expires_after: 10,
         raise: false,
-        owner: "#{`hostname`.strip}:#{Process.pid}:#{Thread.object_id}"
+        owner: Proc.new { "#{`hostname`.strip}:#{Process.pid}:#{Thread.object_id}" }
       }
       defaults = defaults.merge(@@default_configuration) if defined?(@@default_configuration) && @@default_configuration
       @@default_configuration = Configuration.new(defaults, options, &block)

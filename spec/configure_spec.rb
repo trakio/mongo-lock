@@ -33,7 +33,7 @@ describe Mongo::Lock do
     context "when provided with nothing" do
 
       it "sets default limit" do
-        expect(Mongo::Lock.configuration.limit).to be 10
+        expect(Mongo::Lock.configuration.limit).to be 100
       end
 
       it "sets default timeout_in" do
