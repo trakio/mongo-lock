@@ -1,6 +1,6 @@
 module Mongo
   class Lock
-    class Queries
+    class MongoQueries
 
       attr_accessor :lock
 

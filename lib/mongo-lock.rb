@@ -1,5 +1,5 @@
 require 'mongo-lock/configuration'
-require 'mongo-lock/queries'
+require 'mongo-lock/mongo_queries'
 require 'mongo-lock/class_convenience_methods'
 
 module Mongo
@@ -42,23 +42,23 @@ module Mongo
 
     def self.release_all options = {}
       if options.include? :collection
-        Mongo::Lock::Queries.release_collection configuration.collection(options[:collection]), options[:owner]
+        Mongo::Lock::MongoQueries.release_collection configuration.collection(options[:collection]), options[:owner]
       else
         configuration.collections.each_pair do |key,collection|
-          Mongo::Lock::Queries.release_collection collection, options[:owner]
+          Mongo::Lock::MongoQueries.release_collection collection, options[:owner]
         end
       end
     end
 
     def self.ensure_indexes
       configuration.collections.each_pair do |key, collection|
-        Mongo::Lock::Queries.ensure_indexes collection
+        Mongo::Lock::MongoQueries.ensure_indexes collection
       end
     end
 
     def self.clear_expired
       configuration.collections.each_pair do |key,collection|
-        Mongo::Lock::Queries.clear_expired collection
+        Mongo::Lock::MongoQueries.clear_expired collection
       end
     end
 
@@ -66,7 +66,7 @@ module Mongo
     def initialize key, options = {}
       self.configuration = Configuration.new self.class.configuration.to_hash, options
       self.key = key
-      self.query = Mongo::Lock::Queries.new self
+      self.query = Mongo::Lock::MongoQueries.new self
       acquire_if_acquired
     end
 
