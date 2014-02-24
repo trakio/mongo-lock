@@ -278,7 +278,7 @@ Matthew Spence (msaspence)
 
 The bulk of this gem has been developed for and by [trak.io](http://trak.io)
 
-[![trak.io](http://trak.io/assets/images/logo@2x.png =203x37)](http://trak.io)
+[![trak.io](http://trak.io/assets/images/logo@2x.png)](http://trak.io)
 
 ## Contributing
 
