@@ -28,9 +28,9 @@ describe Mongo::Lock do
     context "when the lock was acquired but has since expired" do
 
       it "returns false" do
-        collection.insert key: 'my_lock', owner: 'spence', expires_at: 0.01.seconds.from_now
+        collection.insert key: 'my_lock', owner: 'spence', expires_at: 0.1.seconds.from_now
         lock.acquire
-        sleep 0.1
+        sleep 0.2
         expect(lock.acquired?).to be_false
       end
 

@@ -28,8 +28,7 @@ describe Mongo::Lock do
     context "when the lock hasn't expired" do
 
       it "returns false" do
-        lock.acquire expires_after: 0.02
-        sleep 0.01
+        lock.acquire expires_after: 0.1
         expect(lock.expired?).to be_false
       end
 
