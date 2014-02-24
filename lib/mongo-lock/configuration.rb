@@ -59,6 +59,14 @@ module Mongo
         }
       end
 
+      def owner
+        if @owner.is_a? Proc
+          @owner.call
+        else
+          @owner
+        end
+      end
+
     end
   end
 end

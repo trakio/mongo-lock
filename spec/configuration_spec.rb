@@ -213,6 +213,17 @@ describe Mongo::Lock::Configuration do
       expect(subject.owner).to eql 'spence'
     end
 
+    context "when owner is a Proc" do
+
+      it "is called" do
+        proc = Proc.new { }
+        expect(proc).to receive(:call)
+        subject.instance_variable_set('@owner', proc)
+        subject.owner
+      end
+
+    end
+
   end
 
   describe "#owner=" do
