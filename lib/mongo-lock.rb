@@ -5,6 +5,7 @@ module Mongo
 
     class NotAcquiredError < StandardError ; end
     class NotReleasedError < StandardError ; end
+    class NotExtendedError < StandardError ; end
 
     attr_accessor :configuration
     attr_accessor :key
@@ -212,6 +213,50 @@ module Mongo
       existing_lock
     end
 
+    def extend_by time, options = {}
+      options = configuration.to_hash.merge options
+
+      # Can't extend a lock that hasn't been acquired
+      if !acquired?
+        return raise_or_false options, NotExtendedError
+
+      # Can't extend a lock that has started
+      elsif expired?
+        return raise_or_false options, NotExtendedError
+
+      else
+        to_expire_at = expires_at + time
+        existing_lock = collection.find_and_modify({
+          query: query,
+          update: {
+            '$set' => {
+              key: key,
+              owner: options[:owner],
+              expires_at: to_expire_at,
+              ttl: to_expire_at
+            }
+          },
+          upsert: true
+        })
+        true
+      end
+    end
+
+    def extend options = {}
+      time = configuration.to_hash.merge(options)[:expires_after]
+      extend_by time, options
+    end
+
+    def extend_by! time, options = {}
+      options[:raise] = true
+      extend_by time, options
+    end
+
+    def extend! options = {}
+      options[:raise] = true
+      extend options
+    end
+
     def available? options = {}
       options = configuration.to_hash.merge options
       existing_lock = collection.find(query).first
@@ -235,10 +280,6 @@ module Mongo
 
     def released?
       !!released
-    end
-
-    def extend_by time
-
     end
 
     def acquire_if_acquired
