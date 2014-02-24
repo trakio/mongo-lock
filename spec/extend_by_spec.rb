@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Mongo::Lock do
 
-  let(:lock) { Mongo::Lock.new 'my_lock', owner: 'spence', timeout_in: 0.01, frequency: 0.01, expire_in: 0.1 }
+  let(:lock) { Mongo::Lock.new 'my_lock', owner: 'spence', timeout_in: 0.01, frequency: 0.01, expire_in: 1 }
 
   describe '#extend_by' do
 
@@ -22,6 +22,8 @@ describe Mongo::Lock do
     end
 
     context "when the lock has expired" do
+
+      let(:lock) { Mongo::Lock.new 'my_lock', owner: 'spence', timeout_in: 0.01, frequency: 0.01, expire_in: 0.11 }
 
       it "returns false" do
         lock.acquire
