@@ -101,7 +101,7 @@ describe Mongo::Lock do
         let(:lock) { Mongo::Lock.new 'my_lock', owner: 'spence', timeout_in: 0.03, frequency: 0.01 }
 
         it "should return false" do
-          collection.insert key: 'my_lock', owner: 'tobie', expires_at: 0.2.seconds.from_now
+          collection.insert key: 'my_lock', owner: 'tobie', expires_at: 1.second.from_now
           expect(lock.acquire).to be_false
         end
 
@@ -112,7 +112,7 @@ describe Mongo::Lock do
         let(:lock) { Mongo::Lock.new 'my_lock', owner: 'spence', timeout_in: 0.4, limit: 3, frequency: 0.01 }
 
         it "should return false" do
-          collection.insert key: 'my_lock', owner: 'tobie', expires_at: 0.2.seconds.from_now
+          collection.insert key: 'my_lock', owner: 'tobie', expires_at: 1.second.from_now
           expect(lock.acquire).to be_false
         end
 
@@ -127,7 +127,7 @@ describe Mongo::Lock do
         let(:lock) { Mongo::Lock.new 'my_lock', owner: 'tobie', timeout_in: 0.4, limit: 3, frequency: 0.01, raise: true }
 
         it "should raise Mongo::Lock::NotAcquiredError" do
-          collection.insert key: 'my_lock', owner: 'spence', expires_at: 0.2.seconds.from_now
+          collection.insert key: 'my_lock', owner: 'spence', expires_at: 1.second.from_now
           expect{lock.acquire}.to raise_error Mongo::Lock::NotAcquiredError
         end
 
@@ -138,7 +138,7 @@ describe Mongo::Lock do
         let(:lock) { Mongo::Lock.new 'my_lock', owner: 'tobie', timeout_in: 0.3, limit: 3, frequency: 0.01, raise: true }
 
         it "should raise Mongo::Lock::NotAcquiredError" do
-          collection.insert key: 'my_lock', owner: 'spence', expires_at: 0.2.seconds.from_now
+          collection.insert key: 'my_lock', owner: 'spence', expires_at: 1.second.from_now
           expect{lock.acquire}.to raise_error Mongo::Lock::NotAcquiredError
         end
 
@@ -151,7 +151,7 @@ describe Mongo::Lock do
       let(:lock) { Mongo::Lock.new 'my_lock', owner: 'tobie', timeout_in: 0.2, limit: 11, frequency: 0.01, raise: true }
 
       it "overrides the lock's" do
-        collection.insert key: 'my_lock', owner: 'spence', expires_at: 1.seconds.from_now
+        collection.insert key: 'my_lock', owner: 'spence', expires_at: 1.second.from_now
         expect(lock.acquire timeout_in: 0.05, limit: 3, frequency: 0.02, raise: false).to be_false
       end
 
