@@ -8,9 +8,9 @@ describe Mongo::Lock do
 
     context "when the lock has not been acquired" do
 
-      it "raises Mongo::Lock::NotAcquiredError" do
+      it "returns false" do
         sleep 0.02
-        expect{lock.expired?}.to raise_error Mongo::Lock::NotAcquiredError
+        expect(lock.expired?).to be_false
       end
 
     end

@@ -11,7 +11,6 @@ describe Mongo::Lock do
       end
 
       it "should build ttl index for each collection" do
-        puts collection.index_information
         expect(collection.index_information['ttl_1']).to eql "v"=>1, "key"=> { "ttl"=>1 }, "ns"=>"mongo_lock_tests.locks", "name"=>"ttl_1", "expireAfterSeconds"=>0
       end
 

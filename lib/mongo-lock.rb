@@ -18,8 +18,10 @@ module Mongo
         limit: 10,
         frequency: 1,
         expires_after: 10,
+        raise: false,
+        owner: "#{`hostname`.strip}:#{Process.pid}:#{Thread.object_id}"
       }
-      defaults = defaults.merge(@@default_configuration) if defined? @@default_configuration
+      defaults = defaults.merge(@@default_configuration) if defined?(@@default_configuration) && @@default_configuration
       @@default_configuration = Configuration.new(defaults, options, &block)
     end
 
@@ -86,6 +88,7 @@ module Mongo
     def initialize key, options = {}
       self.configuration = Configuration.new self.class.configuration.to_hash, options
       self.key = key
+      acquire_if_acquired
     end
 
     def configure options = {}, &block
@@ -187,7 +190,8 @@ module Mongo
           '$setOnInsert' => {
             key: key,
             owner: options[:owner],
-            expires_at: to_expire_at
+            expires_at: to_expire_at,
+            ttl: to_expire_at
           }
         },
         upsert: true
@@ -220,7 +224,6 @@ module Mongo
     end
 
     def expired?
-      raise Mongo::Lock::NotAcquiredError if !acquired
       !!(expires_at && expires_at < Time.now)
     end
 
@@ -230,6 +233,16 @@ module Mongo
 
     def extend_by time
 
+    end
+
+    def acquire_if_acquired
+      if (collection.find({
+          key: key,
+          owner: configuration.owner,
+          expires_at: { '$gt' => Time.now }
+        }).count > 0)
+        self.acquired = true
+      end
     end
 
   end

@@ -4,6 +4,10 @@ describe Mongo::Lock do
 
   describe '.configure' do
 
+    after :each do
+      Mongo::Lock.class_variable_set('@@default_configuration',nil)
+    end
+
     it "Creates a new configuration" do
       first_configuration = Mongo::Lock.configuration
       Mongo::Lock.configure
@@ -24,6 +28,34 @@ describe Mongo::Lock do
       end
       expect(Mongo::Lock.configuration.limit).to be 5
       expect(Mongo::Lock.configuration.frequency).to be 4
+    end
+
+    context "when provided with nothing" do
+
+      it "sets default limit" do
+        expect(Mongo::Lock.configuration.limit).to be 10
+      end
+
+      it "sets default timeout_in" do
+        expect(Mongo::Lock.configuration.timeout_in).to be 10
+      end
+
+      it "sets default frequency" do
+        expect(Mongo::Lock.configuration.frequency).to be 1
+      end
+
+      it "sets default expires_after" do
+        expect(Mongo::Lock.configuration.expires_after).to be 10
+      end
+
+      it "sets default owner" do
+        expect(Mongo::Lock.configuration.owner).to eql "#{`hostname`.strip}:#{Process.pid}:#{Thread.object_id}"
+      end
+
+      it "sets default raise" do
+        expect(Mongo::Lock.configuration.raise).to be_false
+      end
+
     end
 
   end

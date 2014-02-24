@@ -25,16 +25,6 @@ describe Mongo::Lock do
 
     end
 
-    context "when the lock is already acquired but by the same owner in a different thread" do
-
-      it "returns true" do
-        collection.insert key: 'my_lock', owner: 'spence'
-        lock.acquire
-        expect(lock.acquired?).to be_true
-      end
-
-    end
-
     context "when the lock was acquired but has since expired" do
 
       it "returns false" do
