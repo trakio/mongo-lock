@@ -1,8 +1,11 @@
 require 'mongo-lock/configuration'
 require 'mongo-lock/queries'
+require 'mongo-lock/class_convenience_methods'
 
 module Mongo
   class Lock
+
+    extend Mongo::Lock::ClassConvenienceMethods
 
     class NotAcquiredError < StandardError ; end
     class NotReleasedError < StandardError ; end
@@ -36,31 +39,6 @@ module Mongo
       end
     end
 
-    def self.init_and_send key, options = {}, method
-      lock = self.new(key, options)
-      lock.send(method)
-      lock
-    end
-
-    def self.acquire key, options = {}
-      init_and_send key, options, :acquire
-    end
-
-    def self.release key, options = {}
-      init_and_send key, options, :release
-    end
-
-    def self.acquire! key, options = {}
-      init_and_send key, options, :acquire!
-    end
-
-    def self.release! key, options = {}
-      init_and_send key, options, :release!
-    end
-
-    def self.available? key, options = {}
-      init_and_send key, options, :available?
-    end
 
     def self.release_all options = {}
       if options.include? :collection
