@@ -25,7 +25,7 @@ describe Mongo::Lock do
 
       it "returns false" do
         lock.acquire
-        sleep 0.02
+        sleep 0.11
         expect(lock.extend_by 10).to be_false
       end
 
