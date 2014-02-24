@@ -190,24 +190,35 @@ module Mongo
     end
 
     def find_or_insert options
-      to_expire_at = Time.now + options[:expires_after]
+      options[:expire_at] = Time.now + options[:expires_after]
+      options[:insert] = true
+      find_and_modify options
+    end
+
+    def find_and_update time, options
+      options[:expire_at] = expires_at + time
+      find_and_modify options
+    end
+
+    def find_and_modify options
+      operation = options[:insert] ? '$setOnInsert' : '$set'
       existing_lock = collection.find_and_modify({
         query: query,
         update: {
-          '$setOnInsert' => {
+          operation => {
             key: key,
             owner: options[:owner],
-            expires_at: to_expire_at,
-            ttl: to_expire_at
+            expires_at: options[:expire_at],
+            ttl: options[:expire_at]
           }
         },
-        upsert: true
+        upsert: !!options[:insert]
       })
 
       if existing_lock
         self.expires_at = existing_lock['expires_at']
       else
-        self.expires_at = to_expire_at
+        self.expires_at = options[:expire_at]
       end
 
       existing_lock
@@ -225,19 +236,7 @@ module Mongo
         return raise_or_false options, NotExtendedError
 
       else
-        to_expire_at = expires_at + time
-        existing_lock = collection.find_and_modify({
-          query: query,
-          update: {
-            '$set' => {
-              key: key,
-              owner: options[:owner],
-              expires_at: to_expire_at,
-              ttl: to_expire_at
-            }
-          },
-          upsert: true
-        })
+        find_and_update time, options
         true
       end
     end
