@@ -37,15 +37,15 @@ describe Mongo::Lock do
       end
 
       it "sets default timeout_in" do
-        expect(Mongo::Lock.configuration.timeout_in).to be 10
+        expect(Mongo::Lock.configuration.timeout_in).to be false
       end
 
       it "sets default frequency" do
         expect(Mongo::Lock.configuration.frequency).to be 1
       end
 
-      it "sets default expires_after" do
-        expect(Mongo::Lock.configuration.expires_after).to be 10
+      it "sets default expire_in" do
+        expect(Mongo::Lock.configuration.expire_in).to be 10
       end
 
       it "sets default owner" do

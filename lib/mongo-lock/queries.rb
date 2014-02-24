@@ -38,7 +38,7 @@ module Mongo
       end
 
       def find_or_insert options
-        options[:expire_at] = Time.now + options[:expires_after]
+        options[:expire_at] = Time.now + options[:expire_in]
         options[:insert] = true
         find_and_modify options
       end

@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Mongo::Lock do
 
-  let(:lock) { Mongo::Lock.acquire('my_lock', owner: 'spence', expires_after: 0.1.seconds, timeout_in: 0.01, frequency: 0.01) }
+  let(:lock) { Mongo::Lock.acquire('my_lock', owner: 'spence', expire_in: 0.1.seconds, timeout_in: 0.01, frequency: 0.01) }
 
   describe '.release' do
 

@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Mongo::Lock do
 
-  let(:lock) { Mongo::Lock.new 'my_lock', owner: 'spence', timeout_in: 0.01, frequency: 0.01, expires_after: 0.1 }
+  let(:lock) { Mongo::Lock.new 'my_lock', owner: 'spence', timeout_in: 0.01, frequency: 0.01, expire_in: 0.1 }
 
   describe '#extend_by' do
 
@@ -52,7 +52,7 @@ describe Mongo::Lock do
 
     context "when the raise option is set to true" do
 
-      let(:lock) { Mongo::Lock.new 'my_lock', owner: 'spence', timeout_in: 0.01, frequency: 0.01, expires_after: 0.01, raise: true }
+      let(:lock) { Mongo::Lock.new 'my_lock', owner: 'spence', timeout_in: 0.01, frequency: 0.01, expire_in: 0.01, raise: true }
 
       context "and the lock has expired" do
 
@@ -100,13 +100,13 @@ describe Mongo::Lock do
 
   describe '#extend' do
 
-    it "calls #extend_by with the default expires_after config setting" do
-      expect(lock).to receive(:extend_by).with(lock.configuration.expires_after, {})
+    it "calls #extend_by with the default expire_in config setting" do
+      expect(lock).to receive(:extend_by).with(lock.configuration.expire_in, {})
       lock.extend
     end
 
     it "also passes options on" do
-      expect(lock).to receive(:extend_by).with(lock.configuration.expires_after, { raise: true })
+      expect(lock).to receive(:extend_by).with(lock.configuration.expire_in, { raise: true })
       lock.extend raise: true
     end
 
@@ -124,7 +124,7 @@ describe Mongo::Lock do
   describe '#extend!' do
 
     it "calls .extend with raise errors option set to true" do
-      expect(lock).to receive(:extend_by).with(lock.configuration.expires_after, { raise: true })
+      expect(lock).to receive(:extend_by).with(lock.configuration.expire_in, { raise: true })
       lock.extend!
     end
 

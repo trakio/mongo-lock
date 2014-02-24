@@ -6,7 +6,7 @@ module Mongo
       attr_accessor :limit
       attr_accessor :timeout_in
       attr_accessor :frequency
-      attr_accessor :expires_after
+      attr_accessor :expire_in
       attr_accessor :owner
       attr_accessor :raise
 
@@ -53,7 +53,7 @@ module Mongo
           timeout_in: timeout_in,
           limit: limit,
           frequency: frequency,
-          expires_after: expires_after,
+          expire_in: expire_in,
           owner: owner,
           raise: raise
         }

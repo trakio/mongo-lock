@@ -108,7 +108,7 @@ A lock will automatically be relinquished once its expiry has passed. Expired lo
 
 ```ruby
 Mongo::Lock.configure do |config|
-  config.expires_after = false # timeout_in in seconds for lock expiry; this defaults to 10.
+  config.expire_in = false # timeout_in in seconds for lock expiry; this defaults to 10.
 end
 ```
 
@@ -193,7 +193,7 @@ Mongo::Lock.new 'my_key', {
   timeout_in: 10, # timeout_in in seconds on acquisition; this defaults to false ie no time limit.
   limit: 10, # The limit on the number of acquisition attempts; this defaults to 100.
   frequency: 2, # Frequency in seconds for acquisition attempts ; this defaults to 1.
-  expires_after: 10,# timeout_in in seconds for lock expiry; this defaults to 10.
+  expire_in: 10,# timeout_in in seconds for lock expiry; this defaults to 10.
 }
 ```
 
@@ -207,7 +207,7 @@ Mongo::Lock.new 'my_key' do |lock|
 end
 ```
 
-You can also call Mongo::Lock#extend and it will extend by the lock's expires_after option.
+You can also call Mongo::Lock#extend and it will extend by the lock's expire_in option.
 
 ```ruby
 Mongo::Lock.new 'my_key' do |lock|
@@ -218,7 +218,7 @@ end
 ### Check you still hold a lock
 
 ```ruby
-Mongo::Lock.acquire 'my_key', expires_after: 10 do |lock|
+Mongo::Lock.acquire 'my_key', expire_in: 10 do |lock|
   sleep 9
   lock.expired? # False
   sleep 11

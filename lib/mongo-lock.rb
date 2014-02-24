@@ -20,10 +20,10 @@ module Mongo
 
     def self.configure options = {}, &block
       defaults = {
-        timeout_in: 10,
+        timeout_in: false,
         limit: 100,
         frequency: 1,
-        expires_after: 10,
+        expire_in: 10,
         raise: false,
         owner: Proc.new { "#{`hostname`.strip}:#{Process.pid}:#{Thread.object_id}" }
       }
@@ -107,7 +107,7 @@ module Mongo
         # If the lock is owned by me
         if existing_lock['owner'] == options[:owner]
           self.acquired = true
-          extend_by options[:expires_after]
+          extend_by options[:expire_in]
           return true
         end
 
@@ -165,7 +165,7 @@ module Mongo
     end
 
     def extend options = {}
-      time = configuration.to_hash.merge(options)[:expires_after]
+      time = configuration.to_hash.merge(options)[:expire_in]
       extend_by time, options
     end
 

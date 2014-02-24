@@ -188,20 +188,20 @@ describe Mongo::Lock::Configuration do
 
   end
 
-  describe "#expires_after=" do
+  describe "#expire_in=" do
 
-    it "should set the expires_after value" do
-      subject.expires_after = 9
-      expect(subject.instance_variable_get('@expires_after')).to be 9
+    it "should set the expire_in value" do
+      subject.expire_in = 9
+      expect(subject.instance_variable_get('@expire_in')).to be 9
     end
 
   end
 
-  describe "#expires_after" do
+  describe "#expire_in" do
 
-    it "should return the expires_after value" do
-      subject.instance_variable_set('@expires_after', 1)
-      expect(subject.expires_after).to be 1
+    it "should return the expire_in value" do
+      subject.instance_variable_set('@expire_in', 1)
+      expect(subject.expire_in).to be 1
     end
 
   end
