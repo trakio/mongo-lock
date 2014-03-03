@@ -284,8 +284,9 @@ end
 If you are running mongo-lock inside Rails it will add the following rake tasks for you.
 
 ```bash
-bundle exec rake mongolock:clear_expired # Calls Mongo::Lock.clear_expired
-bundle exec rake mongolock:release_all # Calls Mongo::Lock.release_all
+bundle exec rake mongolock:clear_expired    # Calls Mongo::Lock.clear_expired
+bundle exec rake mongolock:release_all      # Calls Mongo::Lock.release_all
+bundle exec rake mongolock:ensure_indexes   # Calls Mongo::Lock.ensure_indexes
 ```
 
 ## Contributors

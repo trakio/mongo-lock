@@ -24,4 +24,13 @@ describe 'mongolock' do
 
   end
 
+  describe 'mongolock:ensure_indexes' do
+
+    it "calls .ensure_indexes" do
+      expect(Mongo::Lock).to receive(:ensure_indexes)
+      Rake::Task['mongolock:ensure_indexes'].invoke
+    end
+
+  end
+
 end

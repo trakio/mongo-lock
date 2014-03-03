@@ -8,4 +8,9 @@ namespace :mongolock do
   task :release_all => :environment do
     ::Mongo::Lock.release_all
   end
+
+  desc "Release all expired locks from registered collections"
+  task :ensure_indexes => :environment do
+    ::Mongo::Lock.ensure_indexes
+  end
 end
