@@ -279,6 +279,15 @@ rescue Mongo::Lock::LockNotAcquiredError => e
 end
 ```
 
+## Rake tasks
+
+If you are running mongo-lock inside Rails it will add the following rake tasks for you.
+
+```bash
+bundle exec rake mongolock:clear_expired # Calls Mongo::Lock.clear_expired
+bundle exec rake mongolock:release_all # Calls Mongo::Lock.release_all
+```
+
 ## Contributors
 
 Matthew Spence (msaspence)

@@ -2,6 +2,11 @@ require 'mongo-lock/configuration'
 require 'mongo-lock/mongo_queries'
 require 'mongo-lock/class_convenience_methods'
 
+# If we are using Rails then we will include the Mongo::Lock railtie.
+if defined?(Rails)
+  require "mongo-lock/railtie"
+end
+
 module Mongo
   class Lock
 
