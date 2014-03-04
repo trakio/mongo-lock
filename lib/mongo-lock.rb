@@ -176,12 +176,8 @@ module Mongo
     def extend_by time, options = {}
       options = inherit_options options
 
-      # Can't extend a lock that hasn't been acquired
-      if !acquired?
-        return raise_or_false options, NotExtendedError
-
-      # Can't extend a lock that has started
-      elsif expired?
+      # Can't extend a lock that hasn't been acquired or expired
+      if !acquired? || expired?
         return raise_or_false options, NotExtendedError
 
       else
