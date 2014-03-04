@@ -46,8 +46,17 @@ module Mongo
 
 
     def self.release_all options = {}
-      if options.include? :collection
-        Mongo::Lock::MongoQueries.release_collection configuration.collection(options[:collection]), options[:owner]
+      options[:collections] = options[:collections].try(:values) || options[:collections] || []
+      if options[:collection].is_a? Symbol
+        options[:collections] << configuration.collection(options[:collection])
+      elsif options[:collection]
+        options[:collections] << options[:collection]
+      end
+
+      if options[:collections].size > 0
+        options[:collections].each do |collection|
+          Mongo::Lock::MongoQueries.release_collection collection, options[:owner]
+        end
       else
         configuration.collections.each_pair do |key,collection|
           Mongo::Lock::MongoQueries.release_collection collection, options[:owner]

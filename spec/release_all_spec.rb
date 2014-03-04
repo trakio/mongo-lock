@@ -12,6 +12,7 @@ describe Mongo::Lock do
       collection.insert key: 'tobies_lock', owner: 'tobie'
       collection.insert key: 'spences_lock', owner: 'spence'
       other_collection.insert key: 'spences_lock', owner: 'spence'
+      another_collection.insert key: 'spences_lock', owner: 'spence'
     end
 
     it "removes all locks from the database" do
@@ -69,6 +70,42 @@ describe Mongo::Lock do
       it "doesn't release locks in other collections" do
         expect(collection.find({ key: 'spences_lock', owner: 'spence'}).count).to eql 1
         expect(collection.find({ key: 'tobies_lock', owner: 'tobie'}).count).to eql 1
+      end
+
+    end
+
+    context "when a collections are provided" do
+
+      before do
+        Mongo::Lock.release_all collections: [another_collection, other_collection]
+      end
+
+      it "does release locks in those collection" do
+        expect(other_collection.find({ key: 'spences_lock', owner: 'spence'}).count).to eql 0
+        expect(another_collection.find({ key: 'spences_lock', owner: 'spence'}).count).to eql 0
+      end
+
+      it "doesn't release locks in other collections" do
+        expect(collection.find({ key: 'spences_lock', owner: 'spence'}).count).to eql 1
+        expect(collection.find({ key: 'tobies_lock', owner: 'tobie'}).count).to eql 1
+      end
+
+      context "when collections is provided as a hash" do
+
+        before do
+          Mongo::Lock.release_all collections: { another_collection: another_collection, other_collection: other_collection }
+        end
+
+        it "does release locks in those collection" do
+          expect(other_collection.find({ key: 'spences_lock', owner: 'spence'}).count).to eql 0
+          expect(another_collection.find({ key: 'spences_lock', owner: 'spence'}).count).to eql 0
+        end
+
+        it "doesn't release locks in other collections" do
+          expect(collection.find({ key: 'spences_lock', owner: 'spence'}).count).to eql 1
+          expect(collection.find({ key: 'tobies_lock', owner: 'tobie'}).count).to eql 1
+        end
+
       end
 
     end

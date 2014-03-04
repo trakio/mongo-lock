@@ -235,6 +235,28 @@ lock = Mongo::Lock.new('my_key')
 lock.available?
 ```
 
+### Release all locks
+
+You can release all locks across an entire collection or owner with the .release_all method.
+
+```ruby
+Mongo::Lock.release_all                              # Release all locks in all registered collections
+Mongo::Lock.release_all collection: :my_locks        # Release all locks in the collection registered as :my_locks
+Mongo::Lock.release_all collection: my_collection    # Release all locks in this instance of Mongo::Collection
+Mongo::Lock.release_all collections: [c1,c2]         # Release all locks in these instances of Mongo::Collection
+Mongo::Lock.release_all collections: {a: ca, b: cb}  # Release all locks in these instances of Mongo::Collection
+Mongo::Lock.release_all owner: 'me'                  # Release all locks in all registered collections that belong to 'me'
+```
+
+### Check a key is already locked without acquiring it
+
+```ruby
+Mongo::Lock.available? 'my_key'
+# Or
+lock = Mongo::Lock.new('my_key')
+lock.available?
+```
+
 ### Failures
 
 If Mongo::Lock#acquire cannot acquire a lock within its configuration limits it will return false.

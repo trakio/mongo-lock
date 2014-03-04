@@ -16,4 +16,8 @@ module MongoHelper
     @other_collection ||= database.collection :other_locks
   end
 
+  def another_collection
+    @another_collection ||= database.collection :another_locks
+  end
+
 end
