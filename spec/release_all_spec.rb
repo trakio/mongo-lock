@@ -74,7 +74,7 @@ describe Mongo::Lock do
 
     end
 
-    context "when a collections are provided" do
+    context "when collections are provided" do
 
       before do
         Mongo::Lock.release_all collections: [another_collection, other_collection]

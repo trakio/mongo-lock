@@ -32,7 +32,7 @@ Or install it yourself as:
 $ gem install mongo-lock
 ```
 
-Build you indexes on any collection that is going to hold locks:
+Build your indexes on any collection that is going to hold locks:
 
 ```ruby
 Mongo::Lock.ensure_indexes # Will use the collection provided to #configure
@@ -246,6 +246,18 @@ Mongo::Lock.release_all collection: my_collection    # Release all locks in this
 Mongo::Lock.release_all collections: [c1,c2]         # Release all locks in these instances of Mongo::Collection
 Mongo::Lock.release_all collections: {a: ca, b: cb}  # Release all locks in these instances of Mongo::Collection
 Mongo::Lock.release_all owner: 'me'                  # Release all locks in all registered collections that belong to 'me'
+```
+
+### Clear expired locks
+
+You can clear expire locks from the database with the .clear_expired method. If you have called .ensure_indexes mongo will do this for you automatically with a [time to live index](http://docs.mongodb.org/manual/tutorial/expire-data/).
+
+```ruby
+Mongo::Lock.clear_expired                              # Clear expired locks in all registered collections
+Mongo::Lock.clear_expired collection: :my_locks        # Clear expired locks in the collection registered as :my_locks
+Mongo::Lock.clear_expired collection: my_collection    # Clear expired locks in this instance of Mongo::Collection
+Mongo::Lock.clear_expired collections: [c1,c2]         # Clear expired locks in these instances of Mongo::Collection
+Mongo::Lock.clear_expired collections: {a: ca, b: cb}  # Clear expired locks in these instances of Mongo::Collection
 ```
 
 ### Check a key is already locked without acquiring it

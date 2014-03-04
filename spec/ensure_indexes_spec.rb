@@ -18,6 +18,15 @@ describe Mongo::Lock do
         expect(collection.index_information['key_1_owner_1_expires_at_1']).to eql "v"=>1, "key"=> { "key"=>1, "owner"=>1, "expires_at"=>1 }, "ns"=>"mongo_lock_tests.locks", "name"=>"key_1_owner_1_expires_at_1"
       end
 
+      it "should mean expired locks are automatically cleaned", :slow do
+        Mongo::Lock.acquire 'my_lock', owner: 'spence', expire_in: 0
+        Mongo::Lock.acquire 'other_lock', owner: 'spence', expire_in: 500
+        while collection.find(owner: 'spence').count != 1
+          sleep 1
+        end
+        expect(collection.find(owner: 'spence').count).to be 1
+      end
+
     end
 
   end
