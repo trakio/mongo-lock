@@ -40,6 +40,23 @@ describe Mongo::Lock do
 
     end
 
+    context "when a collection symbol is provided" do
+
+      before do
+        Mongo::Lock.clear_expired collection: :other
+      end
+
+      it "does release locks in that collection" do
+        expect(other_collection.find({ key: 'spences_lock', owner: 'spence'}).count).to eql 0
+      end
+
+      it "doesn't release locks in other collections" do
+        expect(collection.find({ key: 'spences_lock', owner: 'spence'}).count).to eql 1
+        expect(collection.find({ key: 'tobies_lock', owner: 'tobie'}).count).to eql 1
+      end
+
+    end
+
     context "when collections are provided" do
 
       before do
