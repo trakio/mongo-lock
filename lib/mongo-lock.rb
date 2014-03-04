@@ -68,7 +68,7 @@ module Mongo
 
     def initialize key, options = {}
       self.configuration = Configuration.new self.class.configuration.to_hash, options
-      self.key = key
+      self.key = retrieve_lock_key key
       self.query = Mongo::Lock::MongoQueries.new self
       acquire_if_acquired
     end
@@ -207,6 +207,14 @@ module Mongo
     end
 
     # Utils
+
+    def retrieve_lock_key key
+      case
+      when key.respond_to?(:lock_key)  then key.lock_key
+      when key.is_a?(Array)            then key.map { |element| retrieve_lock_key(element) }.to_param
+      else                                  key.to_param
+      end.to_s
+    end
 
     def acquire_if_acquired
       self.acquired = true if query.is_acquired?

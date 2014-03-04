@@ -183,6 +183,10 @@ lock.release
 Mongo::Lock.release('my_key')
 ```
 
+### Lock Key
+
+The lock key is treated in the same way as [ActiveSupport::Cache's keys](http://guides.rubyonrails.org/caching_with_rails.html#cache-keys), except instead of responding to :cache_key or to :to_param it should respond to :lock_key or to :to_param. You can use Hashes and Arrays of values as cache keys.
+
 ### Options
 
 When using Mongo::Lock#acquire, Mongo::Lock#release or Mongo::Lock#new after the key you may overide any of the following options:

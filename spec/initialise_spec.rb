@@ -19,7 +19,6 @@ describe Mongo::Lock do
       Mongo::Lock.configure limit: 3
       lock = Mongo::Lock.new 'my_lock', limit: 4
       expect(lock.configuration.limit).to be 4
-
     end
 
     context "when the key is already acquired by this owner" do
