@@ -50,42 +50,21 @@ module Mongo
       end
     end
 
-    def self.process_collection_options options
-      options[:collections] = options[:collections].try(:values) || options[:collections] || []
-
-      if options[:collection].is_a? Symbol
-        options[:collections] << configuration.collection(options[:collection])
-      elsif options[:collection]
-        options[:collections] << options[:collection]
-      end
-
-      unless options[:collections].size > 0
-        options[:collections] = configuration.collections.values
-      end
-
-      options
-    end
-
     def self.clear_expired options = {}
-      options = process_collection_options options
+      options = configuration.process_collection_options options
 
-      if options[:collections].size > 0
-        options[:collections].each do |collection|
-          Mongo::Lock::MongoQueries.clear_expired collection
-        end
+      options[:collections].each do |collection|
+        Mongo::Lock::MongoQueries.clear_expired collection
       end
     end
 
     def self.release_all options = {}
-      options = process_collection_options options
+      options = configuration.process_collection_options options
 
-      if options[:collections].size > 0
-        options[:collections].each do |collection|
-          Mongo::Lock::MongoQueries.release_collection collection, options[:owner]
-        end
+      options[:collections].each do |collection|
+        Mongo::Lock::MongoQueries.release_collection collection, options[:owner]
       end
     end
-
 
     def initialize key, options = {}
       self.configuration = Configuration.new self.class.configuration.to_hash, options

@@ -67,6 +67,34 @@ module Mongo
         end
       end
 
+      def process_collection_options options
+        options = array_of_collections options
+        options = add_single_collection_to_collections options
+        options = use_registered_collections_if_empty options
+        options
+      end
+
+      def array_of_collections options
+        options[:collections] = options[:collections].try(:values) || options[:collections] || []
+        options
+      end
+
+      def add_single_collection_to_collections options
+        if options[:collection].is_a? Symbol
+          options[:collections] << self.collection(options[:collection])
+        elsif options[:collection]
+          options[:collections] << options[:collection]
+        end
+        options
+      end
+
+      def use_registered_collections_if_empty options
+        if options[:collections].empty?
+          options[:collections] = self.collections.values
+        end
+        options
+      end
+
     end
   end
 end
