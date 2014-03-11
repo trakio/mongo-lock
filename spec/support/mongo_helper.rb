@@ -8,8 +8,8 @@ module MongoHelper
     @database ||= connection.db("mongo_lock_tests")
   end
 
-  def collection
-    @collection ||= database.collection :locks
+  def my_collection
+    @my_collection ||= database.collection :locks
   end
 
   def other_collection

@@ -32,14 +32,14 @@ describe Mongo::Lock do
     context "when lock is acquired" do
 
       before :each do
-        collection.insert key: 'my_lock', owner: 'spence'
+        my_collection.insert key: 'my_lock', owner: 'spence'
       end
 
       let(:lock) { Mongo::Lock.acquire 'my_lock', owner: 'spence' }
 
       it "releases the lock" do
         lock.release
-        expect(collection.find(key: 'my_lock', owner: 'spence').count).to be 0
+        expect(my_collection.find(key: 'my_lock', owner: 'spence').count).to be 0
       end
 
       it "returns true" do
@@ -68,14 +68,14 @@ describe Mongo::Lock do
       let(:lock) { Mongo::Lock.new 'my_lock', timeout_in: 1, frequency: 0.01 }
 
       it "returns false" do
-        collection.insert key: 'my_lock', owner: 'tobie', expires_at: 1.seconds.from_now
+        my_collection.insert key: 'my_lock', owner: 'tobie', expires_at: 1.seconds.from_now
         expect(lock.release timeout_in: 0.01).to be_false
       end
 
       it "doesn't release the lock" do
-        collection.insert key: 'my_lock', owner: 'tobie', expires_at: 1.seconds.from_now
+        my_collection.insert key: 'my_lock', owner: 'tobie', expires_at: 1.seconds.from_now
         lock.release timeout_in: 0.01
-        expect(collection.find(key: 'my_lock', owner: 'tobie').count).to be 1
+        expect(my_collection.find(key: 'my_lock', owner: 'tobie').count).to be 1
       end
 
     end
@@ -106,7 +106,7 @@ describe Mongo::Lock do
       it "releases the lock" do
         lock
         different_instance.release
-        expect(collection.find(key: 'my_lock', owner: 'spence').count).to be 0
+        expect(my_collection.find(key: 'my_lock', owner: 'spence').count).to be 0
       end
 
       it "returns true" do
@@ -123,7 +123,7 @@ describe Mongo::Lock do
       context "when the lock isn't acquired and cant be" do
 
         it "raises Mongo::Lock::NotReleasedError" do
-          collection.insert key: 'my_lock', owner: 'tobie', expires_at: 1.seconds.from_now
+          my_collection.insert key: 'my_lock', owner: 'tobie', expires_at: 1.seconds.from_now
           expect{ lock.release }.to raise_error Mongo::Lock::NotReleasedError
         end
 
@@ -134,9 +134,9 @@ describe Mongo::Lock do
     context "when options are provided" do
 
       it "they override the defaults" do
-        collection.insert key: 'my_lock', owner: 'tobie', expires_at: 1.seconds.from_now
+        my_collection.insert key: 'my_lock', owner: 'tobie', expires_at: 1.seconds.from_now
         expect(lock.release owner: 'tobie').to be_true
-        expect(collection.find(key: 'my_lock', owner: 'tobie').count).to be 0
+        expect(my_collection.find(key: 'my_lock', owner: 'tobie').count).to be 0
       end
 
     end

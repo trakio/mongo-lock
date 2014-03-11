@@ -18,7 +18,7 @@ describe Mongo::Lock do
     context "when the lock hasn't been acquired" do
 
       it "returns false" do
-        collection.insert key: 'my_lock', owner: 'tobie', expires_at: 1.minute.from_now
+        my_collection.insert key: 'my_lock', owner: 'tobie', expires_at: 1.minute.from_now
         lock.acquire
         expect(lock.acquired?).to be_false
       end
@@ -40,7 +40,7 @@ describe Mongo::Lock do
     context "when the lock was acquired but has since been released" do
 
       it "returns false" do
-        collection.insert key: 'my_lock', owner: 'tobie', expires_at: 1.minute.ago
+        my_collection.insert key: 'my_lock', owner: 'tobie', expires_at: 1.minute.ago
         lock.acquire
         lock.release
         expect(lock.acquired?).to be_false

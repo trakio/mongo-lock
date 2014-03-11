@@ -2,14 +2,14 @@ module Mongo
   class Lock
     module ClassConvenienceMethods
 
-      def init_and_send key, options = {}, method
+      def init_and_send key, options = {}, method, &block
         lock = Mongo::Lock.new(key, options)
-        lock.send(method)
+        lock.send(method, &block)
         lock
       end
 
-      def acquire key, options = {}
-        init_and_send key, options, :acquire
+      def acquire key, options = {}, &block
+        init_and_send key, options, :acquire, &block
       end
 
       def release key, options = {}
@@ -25,7 +25,7 @@ module Mongo
       end
 
       def available? key, options = {}
-        init_and_send key, options, :available?
+        Mongo::Lock.new(key, options).available?
       end
 
     end

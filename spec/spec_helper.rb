@@ -26,14 +26,14 @@ RSpec.configure do |config|
     database.drop_collection("locks")
     database.drop_collection("other_locks")
     database.drop_collection("another_locks")
-    Mongo::Lock.configure collection: collection
+    Mongo::Lock.configure collection: my_collection
   end
 
   config.after :each do
   end
 
   config.after :suite do
-    connection.drop_database("mongo_lock_tests")
+    # connection.drop_database("mongo_lock_tests")
   end
 
 end

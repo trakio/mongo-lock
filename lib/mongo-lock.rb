@@ -80,13 +80,13 @@ module Mongo
       yield self.configuration if block_given?
     end
 
-    def acquire options = {}
+    def acquire options = {}, &block
       options = inherit_options options
       i = 1
       time_spent = 0
 
       loop do
-        result = try_acquire options, i, time_spent
+        result = try_acquire options, i, time_spent, &block
         return result unless result.nil?
 
         frequency = call_if_proc options[:frequency], i
@@ -96,7 +96,7 @@ module Mongo
       end
     end
 
-    def try_acquire options, i, time_spent
+    def try_acquire options, i, time_spent, &block
       # If timeout has expired
       if options[:timeout_in] && options[:timeout_in] < time_spent
         return raise_or_false options
@@ -117,8 +117,16 @@ module Mongo
       # If the lock was acquired
       else
         self.acquired = true
-        return true
+        return call_block options, &block
       end
+    end
+
+    def call_block options, &block
+      if block_given?
+        yield self
+        release(options)
+      end
+      true
     end
 
     def release options = {}

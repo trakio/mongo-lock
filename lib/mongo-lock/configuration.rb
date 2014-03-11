@@ -50,6 +50,7 @@ module Mongo
 
       def to_hash
         {
+          collections: collections,
           timeout_in: timeout_in,
           limit: limit,
           frequency: frequency,

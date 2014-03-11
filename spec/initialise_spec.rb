@@ -24,7 +24,7 @@ describe Mongo::Lock do
     context "when the key is already acquired by this owner" do
 
       it "acquires that lock" do
-        collection.insert key: 'my_lock', owner: 'spence', expires_at: 1.minute.from_now
+        my_collection.insert key: 'my_lock', owner: 'spence', expires_at: 1.minute.from_now
         expect(lock.acquired?).to be_true
       end
 

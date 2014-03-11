@@ -4,9 +4,9 @@ describe Mongo::Lock::Configuration do
 
   subject { Mongo::Lock::Configuration.new({}, {}) }
 
-  let (:collections_with_default) { { a: 'a', b: 'b', default: collection } }
+  let (:collections_with_default) { { a: 'a', b: 'b', default: my_collection } }
   let (:collections) { { a: 'a', b: 'b' } }
-  let (:collection) { 'default' }
+  let (:my_collection) { 'default' }
 
   describe '#initialize' do
 
@@ -21,7 +21,7 @@ describe Mongo::Lock::Configuration do
       context "when provided with a default connection" do
 
         it "stores it in the connections hash as :default" do
-          config = Mongo::Lock::Configuration.new({}, { collection: collection, collections: collections })
+          config = Mongo::Lock::Configuration.new({}, { collection: my_collection, collections: collections })
           expect(config.collections).to eql collections_with_default
         end
 
@@ -40,7 +40,7 @@ describe Mongo::Lock::Configuration do
       context "when provided with a default connection" do
 
         it "stores it in the connections hash as :default" do
-          config = Mongo::Lock::Configuration.new({ collections: collections }, { collection: collection})
+          config = Mongo::Lock::Configuration.new({ collections: collections }, { collection: my_collection})
           expect(config.collections).to eql collections_with_default
         end
 
@@ -87,8 +87,8 @@ describe Mongo::Lock::Configuration do
   describe "#collection=" do
 
     it "should set the default collection" do
-      subject.collection = collection
-      expect(subject.instance_variable_get('@collections')[:default]).to be collection
+      subject.collection = my_collection
+      expect(subject.instance_variable_get('@collections')[:default]).to be my_collection
     end
 
   end

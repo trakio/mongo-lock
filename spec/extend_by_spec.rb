@@ -11,7 +11,7 @@ describe Mongo::Lock do
       it "extends the lock" do
         lock.acquire
         lock.extend_by 60
-        expect(collection.find(owner: 'spence', key: 'my_lock').first['expires_at']).to be_within(1.second).of(60.seconds.from_now)
+        expect(my_collection.find(owner: 'spence', key: 'my_lock').first['expires_at']).to be_within(1.second).of(60.seconds.from_now)
       end
 
       it "returns true" do

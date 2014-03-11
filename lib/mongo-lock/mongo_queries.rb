@@ -50,7 +50,7 @@ module Mongo
 
       def find_and_modify options
         operation = options[:insert] ? '$setOnInsert' : '$set'
-        existing_lock = collection.find_and_modify({
+        existing_lock = lock.configuration.collection.find_and_modify({
           query: query,
           update: {
             operation => {
@@ -73,7 +73,7 @@ module Mongo
       end
 
       def remove options
-        collection.remove key: key, owner: options[:owner]
+        lock.configuration.collection.remove key: key, owner: options[:owner]
       end
 
       def is_acquired?
@@ -81,7 +81,7 @@ module Mongo
       end
 
       def find_already_acquired
-        collection.find({
+        lock.configuration.collection.find({
           key: key,
           owner: lock.configuration.owner,
           expires_at: { '$gt' => Time.now }
@@ -89,7 +89,7 @@ module Mongo
       end
 
       def find_existing
-        collection.find(query).first
+        lock.configuration.collection.find(query).first
       end
 
     end
