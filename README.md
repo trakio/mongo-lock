@@ -57,22 +57,16 @@ A lock has an owner. Mongo::Lock defaults to using an owner id of HOSTNAME:PID:T
 Mongo::Lock makes no effort to help configure the MongoDB connection - that's
 what the Mongo Ruby Driver is for.
 
-Configuring Mongo::Lock with the Mongo Ruby Driver would look like this:
-
 ```ruby
 Mongo::Lock.configure collection: Mongo::Connection.new("localhost").db("somedb").collection("locks")
 ```
 
 Or using Mongoid:
 
-```ruby
-Mongo::Lock.configure collection: Mongoid.database.collection("locks")
-```
-
 You can add multiple collections with a hash that can be referenced later using symbols:
 
 ```ruby
-Mongo::Lock.configure collections: { default: Mongoid.database.collection("locks"), other: Mongoid.database.collection("other_locks") }
+Mongo::Lock.configure collections: { default: database.collection("locks"), other: database.collection("other_locks") }
 Mongo::Lock.acquire('my_lock') # Locks in the default collection
 Mongo::Lock.acquire('my_lock', collection: :other) # Locks in the other_locks collection
 ```
@@ -82,8 +76,8 @@ You can also configure using a block:
 ```ruby
 Mongo::Lock.configure do |config|
   config.collections: {
-    default: Mongoid.database.collection("locks"),
-    other: Mongoid.database.collection("other_locks")
+    default: database.collection("locks"),
+    other: database.collection("other_locks")
   }
 end
 ```
