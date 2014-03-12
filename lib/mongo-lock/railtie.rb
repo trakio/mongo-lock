@@ -1,10 +1,4 @@
 # encoding: utf-8
-require "mongoid"
-require "mongoid/config"
-require "mongoid/railties/document"
-require "rails"
-require "rails/mongoid"
-
 module Rails
   module Mongo
     module Lock

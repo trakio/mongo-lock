@@ -1,5 +1,6 @@
 require 'coveralls'
 Coveralls.wear!
+require 'rails'
 require 'mongo-lock'
 require 'mongo'
 require 'active_support/core_ext/numeric/time'
