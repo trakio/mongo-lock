@@ -22,8 +22,9 @@ Gem::Specification.new do |spec|
   # s.add_dependency 'some-gem'
   spec.extra_rdoc_files = ['README.md', 'LICENSE']
 
+  spec.add_dependency 'mongo'
+
   spec.add_development_dependency 'rspec'
-  spec.add_development_dependency 'mongo'
   spec.add_development_dependency 'fuubar'
   spec.add_development_dependency 'pry'
   spec.add_development_dependency 'activesupport'
