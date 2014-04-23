@@ -1,6 +1,6 @@
 module Mongo
   class Lock
-    module SendWithRaiseMethods
+    module SendWithRaise
 
       def send_with_raise method, *args
         args.last[:should_raise] = true

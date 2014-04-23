@@ -1,6 +1,6 @@
 module Mongo
   class Lock
-    module ClassConvenienceMethods
+    module ConvenienceMethods
 
       def init_and_send key, options = {}, method, &block
         lock = Mongo::Lock.new(key, options)
