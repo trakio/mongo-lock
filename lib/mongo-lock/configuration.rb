@@ -8,7 +8,8 @@ module Mongo
       attr_accessor :frequency
       attr_accessor :expire_in
       attr_accessor :owner
-      attr_accessor :raise
+      attr_accessor :should_raise
+      attr_accessor :driver
 
       def initialize defaults, options, &block
         options = defaults.merge(options)
@@ -23,7 +24,7 @@ module Mongo
       end
 
       def collection= collection
-        collections[:default] = collection
+        collections[:default] = choose_driver collection
       end
 
       def collection collection = :default
@@ -36,7 +37,7 @@ module Mongo
       end
 
       def collections= collections
-        @collections = collections
+        @collections = choose_driver collections
       end
 
       def set_collections_keep_default collections
@@ -48,6 +49,38 @@ module Mongo
         @collections ||= {}
       end
 
+      def choose_driver provided_collections
+        collections = provided_collections.clone
+        collections = collections.values if collections.is_a? Hash
+
+        if collections.is_a? Array
+          collection = collections.first
+          collection_class = collections.map{ |x| x.class }.uniq
+          raise MixedCollectionsError.new "Collections must be of the same class" if collection_class.size > 1
+        else
+          collection = collections
+        end
+
+        if collection.is_a? Moped::Collection
+          require 'mongo-lock/drivers/moped'
+          self.driver = Mongo::Lock::Drivers::Moped
+        elsif collection.is_a?(Mongo::Collection) or collection.nil? or collection.is_a?(String) or collection.is_a?(Symbol)
+          require 'mongo-lock/drivers/mongo'
+          self.driver = Mongo::Lock::Drivers::Mongo
+        else
+          raise InvalidCollectionError.new "#{collection.class.name} is not a valid collection class"
+        end
+
+        provided_collections
+      end
+
+      def driver= driver
+        if driver.is_a? String
+          driver = "::Mongo::Lock::Drivers::#{driver.camelize}".constantize
+        end
+        @driver = driver
+      end
+
       def to_hash
         {
           collections: collections,
@@ -56,7 +89,8 @@ module Mongo
           frequency: frequency,
           expire_in: expire_in,
           owner: owner,
-          raise: raise
+          driver: driver,
+          should_raise: should_raise
         }
       end
 

@@ -55,7 +55,10 @@ A lock has an owner. Mongo::Lock defaults to using an owner id of HOSTNAME:PID:T
 ## Configuration
 
 Mongo::Lock makes no effort to help configure the MongoDB connection - that's
-what the Mongo Ruby Driver is for.
+what the Mongo driver is for, you can use either Moped or the Mongo Ruby Driver.
+If you are using Mongoid you want to be using the Moped driver. Mongo::Lock will
+automatically choose the right driver for the collection you provide and raise an
+error if you try and mix them.
 
 ```ruby
 Mongo::Lock.configure collection: Mongo::Connection.new("localhost").db("somedb").collection("locks")
@@ -119,7 +122,7 @@ If a lock cannot be acquired, released or extended it will return false, you can
 
 ```ruby
 Mongo::Lock.configure do |config|
-  config.raise = true # Whether to raise an error when acquire, release or extend fail.
+  config.should_raise = true # Whether to raise an error when acquire, release or extend fail.
 end
 ```
 
@@ -293,7 +296,7 @@ unless lock.extend_by 10
 end
 ```
 
-If the raise error option is set to true or you append ! to the end of the method name and you call any of the acquire, release, extend_by or extend methods they will raise a Mongo::Lock::NotAcquiredError, Mongo::Lock::NotReleasedError or Mongo::Lock::NotExtendedError instead of returning false.
+If the should\_raise error option is set to true or you append ! to the end of the method name and you call any of the acquire, release, extend_by or extend methods they will raise a Mongo::Lock::NotAcquiredError, Mongo::Lock::NotReleasedError or Mongo::Lock::NotExtendedError instead of returning false.
 
 ```ruby
 begin
@@ -305,7 +308,7 @@ end
 # Or
 
 begin
-  Mongo::Lock.acquire 'my_key', raise: true
+  Mongo::Lock.acquire 'my_key', should\_raise: true
 rescue Mongo::Lock::LockNotAcquiredError => e
   # Maybe try again tomorrow
 end

@@ -2,6 +2,8 @@ require 'spec_helper'
 
 describe Mongo::Lock do
 
+  configure_for_mongo
+
   describe '.configure' do
 
     after :each do
@@ -52,8 +54,12 @@ describe Mongo::Lock do
         expect(Mongo::Lock.configuration.owner).to eql "#{`hostname`.strip}:#{Process.pid}:#{Thread.object_id}"
       end
 
-      it "sets default raise" do
-        expect(Mongo::Lock.configuration.raise).to be_false
+      it "sets default should_raise" do
+        expect(Mongo::Lock.configuration.should_raise).to be_false
+      end
+
+      it "sets default driver" do
+        expect(Mongo::Lock.configuration.driver).to eql Mongo::Lock::Drivers::Mongo
       end
 
     end

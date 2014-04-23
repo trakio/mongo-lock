@@ -63,6 +63,23 @@ describe Mongo::Lock::Configuration do
       expect(subject.instance_variable_get('@collections')).to be collections
     end
 
+    context "when collections are mixed" do
+
+      it "raises an error" do
+        expect{subject.collections = [my_collection, my_moped_collection]}.to raise_error(Mongo::Lock::MixedCollectionsError, "Collections must be of the same class")
+      end
+
+    end
+
+    context "when collections are Moped it" do
+
+      it "chooses the correct driver" do
+        subject.collections = [my_moped_collection]
+        expect(subject.driver).to eql Mongo::Lock::Drivers::Moped
+      end
+
+    end
+
   end
 
   describe "#set_collections_keep_default" do
@@ -89,6 +106,23 @@ describe Mongo::Lock::Configuration do
     it "should set the default collection" do
       subject.collection = my_collection
       expect(subject.instance_variable_get('@collections')[:default]).to be my_collection
+    end
+
+    context "when collections are Moped it" do
+
+      it "chooses the correct driver" do
+        subject.collection = my_moped_collection
+        expect(subject.driver).to eql Mongo::Lock::Drivers::Moped
+      end
+
+    end
+
+    context "when collection is not a valid class" do
+
+      it "raises an error" do
+        expect{subject.collection = Object.new}.to raise_error(Mongo::Lock::InvalidCollectionError, "Object is not a valid collection class")
+      end
+
     end
 
   end
@@ -232,6 +266,38 @@ describe Mongo::Lock::Configuration do
       subject.owner = 'spence'
       expect(subject.instance_variable_get('@owner')).to eql 'spence'
     end
+
+  end
+
+  describe "#driver=" do
+
+    context "when given a string" do
+
+      it "should set convert the value into a driver class" do
+        subject.driver = 'moped'
+        expect(subject.instance_variable_get('@driver')).to eql Mongo::Lock::Drivers::Moped
+      end
+
+    end
+
+    context "when given a class" do
+
+      it "should set the driver value" do
+        subject.driver = Mongo::Lock::Drivers::Moped
+        expect(subject.instance_variable_get('@driver')).to eql Mongo::Lock::Drivers::Moped
+      end
+
+    end
+
+  end
+
+  describe "#driver" do
+
+    it "should return the driver value" do
+      subject.instance_variable_set('@driver', Mongo::Lock::Drivers::Moped)
+      expect(subject.driver).to eql Mongo::Lock::Drivers::Moped
+    end
+
 
   end
 

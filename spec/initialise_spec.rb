@@ -2,6 +2,8 @@ require 'spec_helper'
 
 describe Mongo::Lock do
 
+  configure_for_mongo
+
   describe '#initialise' do
 
     let(:lock) { Mongo::Lock.new 'my_lock', owner: 'spence', timeout_in: 0.01, frequency: 0.01 }

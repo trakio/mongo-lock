@@ -3,6 +3,7 @@ Coveralls.wear!
 require 'rails'
 require 'mongo-lock'
 require 'mongo'
+require 'moped'
 require 'active_support/core_ext/numeric/time'
 
 RSpec.configure do |config|
@@ -18,17 +19,11 @@ RSpec.configure do |config|
   config.filter_run_excluding :wip => true
 
   Dir[File.expand_path("../support/**/*.rb", __FILE__)].each {|f| require f }
+  Dir[File.expand_path("../examples/**/*.rb", __FILE__)].each {|f| require f }
 
   require 'pry'
 
   include MongoHelper
-
-  config.before :each do
-    database.drop_collection("locks")
-    database.drop_collection("other_locks")
-    database.drop_collection("another_locks")
-    Mongo::Lock.configure collection: my_collection
-  end
 
   config.after :each do
   end

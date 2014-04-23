@@ -4,7 +4,7 @@ require 'rake'
 load 'mongo-lock/railties/mongo.rake'
 task :environment do ; end
 
-describe 'mongolock' do
+describe 'rake tasks' do
 
   describe 'mongolock:clear_expired' do
 
