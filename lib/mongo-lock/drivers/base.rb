@@ -35,6 +35,18 @@ module Mongo
           find_already_acquired.count > 0
         end
 
+        def find_already_acquired
+          lock.configuration.collection.find({
+            key: key,
+            owner: lock.configuration.owner,
+            expires_at: { '$gt' => Time.now }
+          })
+        end
+
+        def find_existing
+          lock.configuration.collection.find(query).first
+        end
+
       end
     end
   end

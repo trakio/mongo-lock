@@ -44,18 +44,6 @@ module Mongo
           lock.configuration.collection.find( key: key, owner: options[:owner] ).remove_all
         end
 
-        def find_already_acquired
-          lock.configuration.collection.find({
-            key: key,
-            owner: lock.configuration.owner,
-            expires_at: { '$gt' => Time.now }
-          })
-        end
-
-        def find_existing
-          lock.configuration.collection.find(query).first
-        end
-
       end
     end
   end
