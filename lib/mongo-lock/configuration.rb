@@ -61,10 +61,10 @@ module Mongo
           collection = collections
         end
 
-        if collection.is_a? Moped::Collection
+        if defined?(Moped::Collection) && collection.is_a?(Moped::Collection)
           require 'mongo-lock/drivers/moped'
           self.driver = Mongo::Lock::Drivers::Moped
-        elsif collection.is_a?(Mongo::Collection) or collection.nil? or collection.is_a?(String) or collection.is_a?(Symbol)
+        elsif (defined?(Mongo::Collection) && collection.is_a?(Mongo::Collection)) || collection.nil? || collection.is_a?(String) || collection.is_a?(Symbol)
           require 'mongo-lock/drivers/mongo'
           self.driver = Mongo::Lock::Drivers::Mongo
         else
