@@ -56,7 +56,7 @@ A lock has an owner. Mongo::Lock defaults to using an owner id of HOSTNAME:PID:T
 
 Mongo::Lock makes no effort to help configure the MongoDB connection - that's
 what the Mongo driver is for, you can use either Moped or the Mongo Ruby Driver.
-If you are using Mongoid you want to be using the Moped driver. Mongo::Lock will
+If you are using Mongoid'll you want to be using the Moped driver. Mongo::Lock will
 automatically choose the right driver for the collection you provide and raise an
 error if you try and mix them.
 
@@ -64,7 +64,19 @@ error if you try and mix them.
 Mongo::Lock.configure collection: Mongo::Connection.new("localhost").db("somedb").collection("locks")
 ```
 
-Or using Mongoid:
+Or using Moped:
+
+```ruby
+session = Moped::Session.new([ "127.0.0.1:27017" ])
+session.use 'locks_db'
+Mongo::Lock.configure collection: session[:locks]
+```
+
+Or if your session is already set up with Mongoid:
+
+```ruby
+Mongo::Lock.configure collection: Mongoid.session(:default)[:locks]
+```
 
 You can add multiple collections with a hash that can be referenced later using symbols:
 
