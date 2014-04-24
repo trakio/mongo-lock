@@ -27,7 +27,7 @@ module Mongo
         end
 
         def find_and_update time, options
-          options[:expire_at] = lock.expires_at + time
+          options[:expire_at] = Time.now + time
           find_and_modify options
         end
 

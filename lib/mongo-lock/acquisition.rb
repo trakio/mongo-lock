@@ -40,8 +40,16 @@ module Mongo
         # If the lock was acquired
         else
           self.acquired = true
-          return call_block options, &block
+          return call_block_and_release options, &block
         end
+      end
+
+      def call_block_and_release options, &block
+        if block_given?
+          yield self
+          release(options)
+        end
+        true
       end
 
       def acquire_if_acquired

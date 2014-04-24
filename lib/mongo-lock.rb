@@ -79,14 +79,6 @@ module Mongo
       yield self.configuration if block_given?
     end
 
-    def call_block options, &block
-      if block_given?
-        yield self
-        release(options)
-      end
-      true
-    end
-
     def available? options = {}
       options = inherit_options options
       existing_lock = driver.find_existing
