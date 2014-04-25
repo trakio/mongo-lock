@@ -2,9 +2,9 @@ module Mongo
   class Lock
     module SendWithRaise
 
-      def send_with_raise method, *args
+      def send_with_raise method, *args, &block
         args.last[:should_raise] = true
-        self.send(method, *args)
+        self.send(method, *args, &block)
       end
 
       def acquire! options = {}, &block
