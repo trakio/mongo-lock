@@ -51,7 +51,7 @@ describe Mongo::Lock do
       end
 
       it "sets default owner" do
-        expect(Mongo::Lock.configuration.owner).to eql "#{`hostname`.strip}:#{Process.pid}:#{Thread.object_id}"
+        expect(Mongo::Lock.configuration.owner).to eql "#{`hostname`.strip}:#{Process.pid}:#{Thread.current.object_id}"
       end
 
       it "sets default should_raise" do

@@ -40,7 +40,7 @@ module Mongo
         expire_in: 10,
         should_raise: false,
         driver: options[:driver] || (require('mongo-lock/drivers/mongo') && ::Mongo::Lock::Drivers::Mongo),
-        owner: Proc.new { "#{`hostname`.strip}:#{Process.pid}:#{Thread.object_id}" }
+        owner: Proc.new { "#{`hostname`.strip}:#{Process.pid}:#{Thread.current.object_id}" }
       }
       defaults = defaults.merge(@@default_configuration) if defined?(@@default_configuration) && @@default_configuration
       @@default_configuration = Configuration.new(defaults, options, &block)

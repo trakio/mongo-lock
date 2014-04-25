@@ -7,20 +7,20 @@ module Mongo
         self.send(method, *args)
       end
 
-      def acquire! options = {}
-        send_with_raise :acquire, options
+      def acquire! options = {}, &block
+        send_with_raise :acquire, options, &block
       end
 
-      def release! options = {}
-        send_with_raise :release, options
+      def release! options = {}, &block
+        send_with_raise :release, options, &block
       end
 
-      def extend_by! time, options = {}
-        send_with_raise :extend_by, time, options
+      def extend_by! time, options = {}, &block
+        send_with_raise :extend_by, time, options, &block
       end
 
-      def extend! options = {}
-        send_with_raise :extend, options
+      def extend! options = {}, &block
+        send_with_raise :extend, options, &block
       end
 
     end
