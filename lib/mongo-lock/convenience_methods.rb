@@ -16,8 +16,8 @@ module Mongo
         init_and_send key, options, :release
       end
 
-      def acquire! key, options = {}
-        init_and_send key, options, :acquire!
+      def acquire! key, options = {}, &block
+        init_and_send key, options, :acquire!, &block
       end
 
       def release! key, options = {}

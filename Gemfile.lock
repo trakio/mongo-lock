@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    mongo-lock (1.2.1)
+    mongo-lock (1.2.3)
 
 GEM
   remote: https://rubygems.org/

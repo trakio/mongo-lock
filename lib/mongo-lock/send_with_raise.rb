@@ -11,16 +11,16 @@ module Mongo
         send_with_raise :acquire, options, &block
       end
 
-      def release! options = {}, &block
-        send_with_raise :release, options, &block
+      def release! options = {}
+        send_with_raise :release, options
       end
 
-      def extend_by! time, options = {}, &block
-        send_with_raise :extend_by, time, options, &block
+      def extend_by! time, options = {}
+        send_with_raise :extend_by, time, options
       end
 
-      def extend! options = {}, &block
-        send_with_raise :extend, options, &block
+      def extend! options = {}
+        send_with_raise :extend, options
       end
 
     end
