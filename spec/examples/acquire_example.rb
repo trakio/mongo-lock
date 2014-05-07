@@ -102,6 +102,29 @@ shared_examples "MongoLock driver that can aquire locks" do
           expect(lock.instance_variable_get('@acquired')).to be_true
         end
 
+        context "when a block is provided" do
+
+          let(:lock) { Mongo::Lock.new 'my_lock', owner: 'spence', timeout_in: 0.2, limit: 11, frequency: 0.01, should_raise: true }
+
+          it "should acquire the lock" do
+            lock.acquire do |lock|
+              expect(Mongo::Lock.available? 'my_lock', owner: 'tobie').to be_false
+            end
+          end
+
+          it "should call the block" do
+            expect{ |block| lock.acquire &block }.to yield_with_args lock
+          end
+
+          it "should release the lock" do
+            lock.acquire do |lock|
+              # Do something
+            end
+            expect(Mongo::Lock.available?('my_lock', owner: 'spence')).to be_true
+          end
+
+        end
+
       end
 
       context "when the lock cannot be acquired" do

@@ -34,7 +34,7 @@ module Mongo
           if existing_lock['owner'] == options[:owner]
             self.acquired = true
             extend_by options[:expire_in]
-            return true
+            return call_block_and_release options, &block
           end
 
         # If the lock was acquired
